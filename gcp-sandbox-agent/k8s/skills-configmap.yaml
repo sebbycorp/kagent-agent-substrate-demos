@@ -1,0 +1,101 @@
+# Skill markdown included into SandboxAgent.spec.declarative.systemMessage
+# via promptTemplate (kagent 0.10.0-rc2). spec.skills is rejected on
+# SandboxAgent. Keep keys in sync with ../skills/*.md.
+# Do not put secrets here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gcp-budget-skills
+  namespace: kagent
+data:
+  budget.md: |
+    # Skill: budget
+
+    Help an executive understand **billing posture in us-east1** (org
+    maniak.io) and whether configured Cloud Billing budgets exist.
+
+    ## Do this
+
+    1. Call `gcp_whoami` first if identity is not already known this turn.
+       Confirm the service-account email and billing account id you will
+       attribute the answer to.
+    2. Call `gcp_cost_month` for billing-account get + linked projects +
+       the calendar month window. Quote the **time window**.
+    3. Call `gcp_budgets` and report configured limits (specified amount
+       or last-period-amount *limit*). Say “no budgets configured” if the
+       list is empty — do not invent a $X limit.
+    4. Call `gcp_cost_by_service`. If spend-by-service is unavailable,
+       say so. Do **not** treat Cloud Catalog SKU prices as invoices.
+
+    ## Do not
+
+    - Guess last month’s bill from memory or from a previous chat.
+    - Invent month-to-date spend. Cloud Billing Accounts / Budgets /
+      Catalog do not return MTD dollars. If the tool says unavailable,
+      keep that word.
+    - Print the service-account JSON, `private_key`, or Vault tokens.
+      Billing account id (`011C38-867461-BE95B1`) and project ids are fine.
+
+    ## How to say it
+
+    Lead with one sentence: “Billing account NAME is open; N projects
+    linked; M budgets configured (limits …). Month-to-date spend is
+    unavailable from Cloud Billing APIs.” Then the table. If an API is
+    denied, name the API (`billing.accounts.get`, `billing.budgets.list`)
+    instead of fabricating $0.
+  capacity.md: |
+    # Skill: capacity
+
+    Help an executive understand **whether us-east1 compute is tight** —
+    running instances, disks, and Compute Engine quotas.
+
+    ## Do this
+
+    1. `gcp_projects` — list accessible projects. Expected names:
+       viper-kagent, maniak-io, qr-maniak-io. Do not invent others.
+    2. `gcp_compute_capacity` — instance names, machine types, zones,
+       status; disk count / GiB by type; unattached disks. Summarize
+       running vs stopped. Do not list every disk unless asked.
+    3. `gcp_quotas` — key compute quotas in **us-east1** (instances,
+       CPUs, disk GB, in-use addresses). Compare **usage vs limit**.
+       Flag anything at or above 80%. If the quota API is denied, say so.
+
+    ## Do not
+
+    - Recommend delete / stop / scale-in unless the human asked, and then
+      still **ask before any write** (this agent has no mutate tools).
+    - Treat a single-zone outage story as current state without tools.
+    - Confuse “quota remaining” with “we should buy more.”
+    - Answer for regions other than us-east1.
+
+    ## How to say it
+
+    “N instances running in us-east1 (types…), M disks (unattached: …),
+    tightest quota used/limit. Projects visible: ….”
+  executive-brief.md: |
+    # Skill: executive brief
+
+    One short brief an exec can read in **30 seconds**. Prefer the composed
+    tool `gcp_executive_brief`, which must itself call the live GCP APIs.
+    If that tool errors, fall back to the budget + capacity tools and compose
+    the same shape yourself — still no invented numbers.
+
+    ## Shape
+
+    ```text
+    Identity: <sa email>  Org: maniak.io  Region: us-east1  As of: <UTC date>
+    Projects: <ids the tool returned>
+    Billing: <account id> open=<true/false>  Budgets: <name> limit or “none configured”
+    Spend MTD: unavailable (<reason from the tool>) — never a guessed dollar
+    Capacity: <running instances>, <disk count>
+    Quotas: <tightest quota used/limit> or “quota API unavailable”
+    Risk: <one sentence, or “none from these reads”>
+    ```
+
+    ## Rules
+
+    - Four to eight lines. No essay.
+    - Every count comes from a tool result in this turn.
+    - If spend is unavailable, write `unavailable` — do not write `$0`.
+    - If something failed, keep the line and write `unavailable (<reason>)`.
+    - Never attach service-account JSON, private keys, or Vault tokens.

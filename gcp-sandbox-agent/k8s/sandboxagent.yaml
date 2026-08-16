@@ -1,0 +1,88 @@
+# SandboxAgent shape matches kagent-crds 0.10.0-rc2 (kagent.dev/v1alpha2, runtime go).
+# Do not bump substrate past 0.0.9. Do not flatten valueFrom on the generated ActorTemplate.
+#
+# Omit snapshotsConfig (same as hello-substrate / fortigate / aws-budget /
+# servicenow on Viper). kagent then writes ActorTemplate location
+# gs://ate-snapshots/kagent/gcp-budget. Today atelet 0.0.9 is
+# ATE_STORAGE_BACKEND=s3 → rustfs.ate-system.svc:9000, rustfs bucket
+# ate-snapshots (1Gi PVC). The gs:// scheme is a prefix only; objects
+# live on rustfs, not Google Cloud. Do not set
+# gs://viper-kagent-ate-snapshots here — that rustfs bucket does not exist
+# and golden snapshot would fail.
+#
+# Skills: 0.10.0-rc2 SandboxAgentSpec CEL rejects spec.skills
+# ("spec.skills is not supported for sandbox agents"). There is no volume
+# mount into the gVisor actor. Live Viper pattern (fortigate, hello-substrate,
+# aws-budget, servicenow) is declarative.systemMessage. We compose that
+# message from ConfigMap gcp-budget-skills via declarative.promptTemplate
+# (published rc2 field). Do not set spec.skills. Do not invent
+# ActorTemplate volume mounts. No ignoreDifferences.
+apiVersion: kagent.dev/v1alpha2
+kind: SandboxAgent
+metadata:
+  name: gcp-budget
+  namespace: kagent
+spec:
+  type: Declarative
+  description: Executive GCP budget and capacity assistant for us-east1 (gVisor)
+  declarative:
+    runtime: go
+    modelConfig: default-model-config
+    promptTemplate:
+      dataSources:
+        - kind: ConfigMap
+          name: gcp-budget-skills
+          alias: skills
+    systemMessage: |
+      You help the executive team manage GCP budget and capacity in
+      us-east1 only (org maniak.io).
+
+      You run as a Go ADK declarative SandboxAgent on Agent Substrate
+      (gVisor actor, WorkerPool kagent-default). Your tools are gcp_* MCP
+      wrappers. Prefer read-only tools. There should be almost no writes;
+      ask before any write. This server has no project-delete, IAM-create,
+      or generic gcloud CLI tools.
+
+      Follow the skills inlined below (budget, capacity, executive-brief).
+      They are loaded from ConfigMap gcp-budget-skills into this system
+      message. You do not have a /skills directory or repo checkout.
+
+      Never invent spend, instance counts, quota numbers, or budget status.
+      Cloud Billing Accounts / Budgets / Catalog do not expose month-to-date
+      spend. If a tool returns unavailable, say so — do not estimate $0.
+      If a tool fails or returns empty, say so. Never print secrets,
+      service-account JSON, private keys, or Vault tokens.
+
+      Projects that exist (names only): viper-kagent, maniak-io,
+      qr-maniak-io. Do not invent other project ids. Do not answer for
+      regions other than us-east1.
+
+      For exec questions, prefer gcp_executive_brief, then expand with
+      budget/capacity tools if asked.
+
+      ---
+      {{include "skills/budget.md"}}
+
+      ---
+      {{include "skills/capacity.md"}}
+
+      ---
+      {{include "skills/executive-brief.md"}}
+    tools:
+      - type: McpServer
+        mcpServer:
+          name: gcp-budget-mcp
+          kind: RemoteMCPServer
+          apiGroup: kagent.dev
+          toolNames:
+            - gcp_whoami
+            - gcp_cost_month
+            - gcp_budgets
+            - gcp_cost_by_service
+            - gcp_compute_capacity
+            - gcp_quotas
+            - gcp_projects
+            - gcp_executive_brief
+  substrate:
+    workerPoolRef:
+      name: kagent-default

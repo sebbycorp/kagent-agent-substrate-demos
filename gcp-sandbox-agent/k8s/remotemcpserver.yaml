@@ -1,0 +1,17 @@
+# Shape copied from kagent 0.10.0-rc2 helm/kagent/templates/toolserver-kagent.yaml
+# plus protocol (CRD default STREAMABLE_HTTP; live kagent-tool-server is the same).
+# Do not invent spec fields. Do not set spec.tls on an http:// URL.
+apiVersion: kagent.dev/v1alpha2
+kind: RemoteMCPServer
+metadata:
+  name: gcp-budget-mcp
+  namespace: kagent
+  labels:
+    app.kubernetes.io/name: gcp-budget-mcp
+    app.kubernetes.io/part-of: gcp-sandbox-agent
+spec:
+  description: Read-mostly GCP budget and capacity tools for us-east1
+  protocol: STREAMABLE_HTTP
+  timeout: 30s
+  sseReadTimeout: 5m0s
+  url: http://gcp-budget-mcp.kagent:8084/mcp
