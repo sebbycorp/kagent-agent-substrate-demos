@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
-# Verify the existing GCP project + GCS bucket used for Substrate snapshots.
+# Verify the reserved GCP project + GCS bucket (later atelet cutover).
 #
 # These already exist — do not create them:
 #   Org:      maniak.io
 #   Project:  viper-kagent (number 89434469276)
 #   Bucket:   gs://viper-kagent-ate-snapshots
 #   Location: us-east1
+#
+# Today on Viper, snapshots stay on rustfs (ate-snapshots). Do NOT set
+# this GCS URI on SandboxAgent/aws-budget — atelet 0.0.9 is
+# ATE_STORAGE_BACKEND=s3 → rustfs, and that rustfs bucket does not exist.
+# Path A (native GCS) and Path B (HMAC) are future cluster-wide work.
 #
 # Default is dry-run (prints planned checks). Set APPLY=1 to run gcloud
 # describe/create. Create is skipped when the project + bucket exist.
@@ -16,7 +21,7 @@
 #   GCS_LOCATION          default us-east1
 #   GCP_BILLING_ACCOUNT   only required if a missing project must be created
 #   GCP_FOLDER_ID         optional resource-manager folder
-#   CREATE_HMAC=1         also create a bucket-scoped SA + HMAC (Path B)
+#   CREATE_HMAC=1         also create a bucket-scoped SA + HMAC (Path B, future)
 #
 # Never prints HMAC secrets (gcloud is instructed to write them aside).
 set -euo pipefail
@@ -60,11 +65,14 @@ echo "org:      maniak.io"
 echo "project:  ${GCP_PROJECT_ID} (lab number 89434469276 when using ${LAB_PROJECT})"
 echo "bucket:   gs://${GCS_BUCKET}"
 echo "location: ${GCS_LOCATION}"
-echo "kagent snapshotsConfig.location → ${PREFIX}"
+echo "reserved GCS prefix (NOT for SandboxAgent yet) → ${PREFIX}"
 echo "APPLY=${APPLY}  (set APPLY=1 to run gcloud; create is skipped if resources exist)"
 echo
 echo "NOTE: project ${LAB_PROJECT} and bucket gs://${LAB_BUCKET} already exist."
-echo "      This script skips create when they are present. Do not make a new project."
+echo "      Reserved for a later cluster-wide atelet cutover off rustfs."
+echo "      This script skips create. Do not make a new project."
+echo "      Today: omit snapshotsConfig; kagent defaults to"
+echo "      gs://ate-snapshots/kagent/aws-budget on rustfs."
 echo
 
 have_gcloud=0
@@ -110,12 +118,12 @@ fi
 
 if [[ "$skip_project" == "1" && "$skip_bucket" == "1" ]]; then
   echo
-  echo "Nothing to create. Set k8s/sandboxagent.yaml:"
-  echo "  spec.substrate.snapshotsConfig.location: ${PREFIX}"
+  echo "Nothing to create. Do NOT set this URI on k8s/sandboxagent.yaml yet."
+  echo "  Today: omit snapshotsConfig → gs://ate-snapshots/kagent/aws-budget on rustfs."
+  echo "  Later cutover only: ${PREFIX}"
   echo
-  echo "Path A (native GCS): give atelet a Google identity with object admin on this bucket."
-  echo "Path B (S3 XML API): HMAC + endpoint https://storage.googleapis.com — see docs/snapshots-gcs.md"
-  echo "kagent CRD still requires the gs:// scheme (pattern ^gs://). Do not put s3:// in SandboxAgent."
+  echo "Path A / Path B (native GCS or HMAC) are future cluster-wide work."
+  echo "See docs/snapshots-gcs.md. Stay on rustfs until atelet is switched."
   if [[ "${CREATE_HMAC:-0}" != "1" ]]; then
     exit 0
   fi
@@ -155,12 +163,12 @@ else
 fi
 
 echo
-echo "Set k8s/sandboxagent.yaml:"
-echo "  spec.substrate.snapshotsConfig.location: ${PREFIX}"
+echo "Do NOT set this URI on k8s/sandboxagent.yaml yet."
+echo "  Today: omit snapshotsConfig → gs://ate-snapshots/kagent/aws-budget on rustfs."
+echo "  Later cutover only: ${PREFIX}"
 echo
-echo "Path A (native GCS): give atelet a Google identity with object admin on this bucket."
-echo "Path B (S3 XML API): HMAC + endpoint https://storage.googleapis.com — see docs/snapshots-gcs.md"
-echo "kagent CRD still requires the gs:// scheme (pattern ^gs://). Do not put s3:// in SandboxAgent."
+echo "Path A / Path B (native GCS or HMAC) are future cluster-wide work."
+echo "See docs/snapshots-gcs.md. Stay on rustfs until atelet is switched."
 
 if [[ "${CREATE_HMAC:-0}" == "1" ]]; then
   sa="ate-snapshots@${GCP_PROJECT_ID}.iam.gserviceaccount.com"

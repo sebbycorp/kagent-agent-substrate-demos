@@ -15,30 +15,27 @@ K() { docker exec k3s-viper kubectl "$@"; }
 "$DEMO/scripts/00-prereqs.sh"
 ```
 
-## GCP project + snapshot bucket (already exist)
+## Snapshots today (rustfs) + reserved GCS (do not wire)
 
-Project **viper-kagent** (89434469276, org **maniak.io**) and bucket
-**gs://viper-kagent-ate-snapshots** (`us-east1`) are already provisioned.
-Do not create a new project or bucket. The script defaults to those
-values and skips create when they exist.
+Today atelet writes to rustfs (`ATE_STORAGE_BACKEND=s3`, bucket
+`ate-snapshots`). `sandboxagent.yaml` **omits** `snapshotsConfig`.
+Expected ActorTemplate location: `gs://ate-snapshots/kagent/aws-budget`.
+
+Project **viper-kagent** (89434469276) and
+**gs://viper-kagent-ate-snapshots** already exist and are reserved for
+a later cluster-wide atelet cutover. Do not create another. Do not set
+that URI on this SandboxAgent yet.
 
 ```bash
-# prints / probes; create is skipped for the existing lab pair
+# verify reserved GCS; create is skipped. Does not change the agent YAML.
 "$DEMO/scripts/01-gcp-snapshot-bucket.sh"
-# optional overrides (only if you are not using the lab bucket):
-# export GCP_PROJECT_ID="viper-kagent"
-# export GCS_BUCKET="viper-kagent-ate-snapshots"
-# export GCS_LOCATION="us-east1"
 ```
 
-Inspect what kagent will write (must stay `gs://`):
-
 ```bash
-# after the SandboxAgent exists
-K -n kagent get sandboxagent aws-budget -o yaml | sed -n '/snapshotsConfig/,+6p'
+# after the SandboxAgent exists — expect gs://ate-snapshots/kagent/aws-budget
 K -n kagent get actortemplate aws-budget -o jsonpath='{.spec.snapshotsConfig.location}{"\n"}{.status.goldenSnapshot}{"\n"}'
-K -n ate-system get pods
-# look for rustfs vs only atelet/ate-api/valkey
+K -n ate-system get pods,svc
+# rustfs should be present; atelet env ATE_STORAGE_BACKEND=s3
 ```
 
 ## AWS IAM (keys never echo)

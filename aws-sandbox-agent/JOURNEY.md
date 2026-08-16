@@ -77,90 +77,64 @@ be tempted to upgrade. That is how Viper already burned time. Stay on
 
 ---
 
-## 3. Use the existing GCP project + GCS bucket for snapshots
+## 3. Snapshots today: rustfs (omit snapshotsConfig)
 
 Substrate checkpoints actor RAM/filesystem to **object storage**.
-The Viper lab already has that storage in GCP — **do not create a new
-project or bucket**.
+On live Viper (read-only, confirmed) that storage is **in-cluster rustfs**,
+not Google Cloud.
 
-| | |
+| | Today on Viper |
 |--|--|
-| Org | **maniak.io** |
-| Project | **viper-kagent** (number **89434469276**) |
-| Bucket | **gs://viper-kagent-ate-snapshots** |
-| Location | **us-east1** |
+| atelet 0.0.9 | `ATE_STORAGE_BACKEND=s3` → `http://rustfs.ate-system.svc:9000` |
+| rustfs bucket | `ate-snapshots` (1Gi PVC) |
+| hello-substrate / fortigate | **omit** `snapshotsConfig` |
+| kagent default | ActorTemplate location `gs://ate-snapshots/kagent/<name>` |
+| Where bytes live | rustfs. The `gs://` scheme is a **prefix only**. |
 
-**Click path** (also in [docs/ui-runbook.md](docs/ui-runbook.md)):
+`k8s/sandboxagent.yaml` therefore **omits** `snapshotsConfig`, same as
+the two live agents. Expected default:
 
-1. [Google Cloud console](https://console.cloud.google.com/) → project
-   picker → select **viper-kagent** (not **New project**).
-2. Cloud Storage → Buckets → confirm **viper-kagent-ate-snapshots**
-   in **us-east1**, public access prevented.
-3. The kagent URI is already set in `k8s/sandboxagent.yaml`:
-   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/`.
+`gs://ate-snapshots/kagent/aws-budget`
 
-**CLI path** (defaults to the existing project + bucket; skips create):
-
-```bash
-./scripts/01-gcp-snapshot-bucket.sh
-```
-
-**What you should see:** project `viper-kagent`, bucket
-`gs://viper-kagent-ate-snapshots`, and `existing lab … — skip create`.
-
-**Why this project:** blast radius. Snapshot objects are sandbox
-memory. They stay in the dedicated `viper-kagent` project, and this
-agent’s AWS IAM must not include `s3:*` on customer buckets.
-
----
-
-## 4. Point Substrate snapshots at that bucket
-
-There are **two layers**. Read [docs/snapshots-gcs.md](docs/snapshots-gcs.md)
-before you invent Helm values.
-
-### Layer 1 — the string kagent writes (this we set)
-
-kagent 0.10.0-rc2 `SandboxAgent.spec.substrate.snapshotsConfig.location`
-is documented as a **GCS URI**, validation `^gs://`, default
-`gs://ate-snapshots/<namespace>/<name>/`.
-
-`k8s/sandboxagent.yaml` already points at the lab bucket:
-
-```yaml
-snapshotsConfig:
-  location: gs://viper-kagent-ate-snapshots/kagent/aws-budget/
-```
+**Do not** set `gs://viper-kagent-ate-snapshots/...` on this agent.
+atelet would look for that bucket **on rustfs**, it does not exist, and
+the golden snapshot would fail.
 
 **What you should see after apply:**
 
 ```bash
 docker exec k3s-viper kubectl -n kagent get actortemplate aws-budget \
   -o jsonpath='{.spec.snapshotsConfig.location}{"\n"}{.status.goldenSnapshot}{"\n"}'
-```
-
-Location is your prefix. `goldenSnapshot` is that prefix plus
-`/<actorId>/<timestamp>-<rand>` when Ready.
-
-### Layer 2 — what atelet actually speaks (inspect, don’t guess)
-
-Published Substrate docs: atelet picks **GCS or S3 at process start**,
-not per snapshot. Older kagent blog posts (0.0.6 / 0.0.8) show an
-in-cluster **rustfs** pod as “S3 for snapshots.” Viper’s 0.0.9
-`values.yaml` does **not** mention rustfs. Confirm:
-
-```bash
 docker exec k3s-viper kubectl -n ate-system get pods,svc
 ```
 
-| If you see… | Then… |
-|-------------|--------|
-| No rustfs; atelet has GCS/ADC credentials | Path A: native `gs://` to `gs://viper-kagent-ate-snapshots` |
-| rustfs (or atelet env is AWS/S3) | Path B: GCS **XML/S3 interop** — HMAC keys, endpoint `https://storage.googleapis.com`. **Still** set location to `gs://…` because the kagent CRD rejects `s3://`. |
+Location is `gs://ate-snapshots/kagent/aws-budget`. `goldenSnapshot` is
+that prefix plus `/<actorId>/<timestamp>-<rand>` when Ready. rustfs is
+up in `ate-system`.
 
-**Why this split exists:** kagent’s CRD and atelet’s client were not
-the same document. We document both so you do not force `s3://` into
-a field that cannot hold it.
+---
+
+## 4. GCP bucket exists — reserved for a later atelet cutover
+
+Project **viper-kagent** (89434469276, org **maniak.io**) and bucket
+**gs://viper-kagent-ate-snapshots** (`us-east1`) **already exist**.
+They are reserved for a **cluster-wide** atelet cutover off rustfs.
+**Do not create another project or bucket. Do not set that URI on
+this SandboxAgent yet.**
+
+Path A (native GCS ADC) and Path B (HMAC +
+`https://storage.googleapis.com`) are **future work** — see
+[docs/snapshots-gcs.md](docs/snapshots-gcs.md). Today: stay rustfs.
+
+**CLI** (verify only; skips create):
+
+```bash
+./scripts/01-gcp-snapshot-bucket.sh
+```
+
+**What you should see:** project `viper-kagent`, bucket
+`gs://viper-kagent-ate-snapshots`, `existing lab … — skip create`,
+and a note that the SandboxAgent must **not** use that URI yet.
 
 ---
 
@@ -324,9 +298,9 @@ Record two panes. **Redact** Vault tokens, AWS secrets, HMAC secrets.
 **CLI reel (about two minutes):**
 
 1. `scripts/00-prereqs.sh` — tools present, cluster reachable.
-2. `scripts/01-gcp-snapshot-bucket.sh` — show the existing
-   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/` URI
-   (create is skipped; the project and bucket already exist).
+2. `scripts/01-gcp-snapshot-bucket.sh` — reserved GCS exists
+   (skip-create). Do **not** put that URI on the SandboxAgent.
+   Today snapshots are rustfs `gs://ate-snapshots/kagent/aws-budget`.
 3. Vault `kv put` with the secret **off screen** or `***`.
 4. `scripts/02-build-import-mcp.sh`.
 5. `kubectl apply` + `get sandboxagent -w` until Ready.
@@ -334,8 +308,9 @@ Record two panes. **Redact** Vault tokens, AWS secrets, HMAC secrets.
 
 **UI reel:**
 
-1. GCP console: project **viper-kagent** + bucket
-   **viper-kagent-ate-snapshots** (already exist — do not create).
+1. Optional: GCP console shows reserved **viper-kagent** /
+   **viper-kagent-ate-snapshots** (already exist — do not create,
+   do not wire). Snapshots today are rustfs.
 2. AWS IAM policy attach (no key download on camera).
 3. kagent `:30500` → Agents → `aws-budget` Ready.
 4. The spend/capacity question → tool calls → executive-shaped answer.

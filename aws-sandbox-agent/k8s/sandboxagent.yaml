@@ -1,9 +1,14 @@
 # SandboxAgent shape matches kagent-crds 0.10.0-rc2 (kagent.dev/v1alpha2, runtime go).
 # Do not bump substrate past 0.0.9. Do not flatten valueFrom on the generated ActorTemplate.
 #
-# snapshotsConfig.location is validated ^gs:// by kagent (AgentHarnessSubstrateSnapshotsConfig).
-# Lab bucket already exists: gs://viper-kagent-ate-snapshots (project viper-kagent).
-# Default if this block is omitted: gs://ate-snapshots/kagent/aws-budget/
+# Omit snapshotsConfig (same as hello-substrate / fortigate on Viper).
+# kagent then writes ActorTemplate location gs://ate-snapshots/kagent/aws-budget.
+# Today atelet 0.0.9 is ATE_STORAGE_BACKEND=s3 → rustfs.ate-system.svc:9000,
+# rustfs bucket ate-snapshots (1Gi PVC). The gs:// scheme is a prefix only;
+# objects live on rustfs, not Google Cloud. Do not set
+# gs://viper-kagent-ate-snapshots here — that rustfs bucket does not exist
+# and golden snapshot would fail. GCS is reserved for a later cluster-wide
+# atelet cutover (see docs/snapshots-gcs.md).
 #
 # Skills: 0.10.0-rc2 SandboxAgentSpec CEL rejects spec.skills
 # ("spec.skills is not supported for sandbox agents"). There is no volume
@@ -79,5 +84,3 @@ spec:
   substrate:
     workerPoolRef:
       name: kagent-default
-    snapshotsConfig:
-      location: gs://viper-kagent-ate-snapshots/kagent/aws-budget/

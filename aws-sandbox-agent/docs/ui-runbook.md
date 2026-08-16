@@ -22,33 +22,24 @@ Story + why: [../JOURNEY.md](../JOURNEY.md).
    call, the model ignored the system message — say “use the tools.”
 8. Do not paste AWS keys into the chat box.
 
-## GCP console (existing project + bucket)
+## GCP console (reserved — do not wire today)
 
-The project and bucket **already exist**. Do not click **New project**
-or **Create** bucket.
+Project **viper-kagent** and bucket **viper-kagent-ate-snapshots**
+**already exist**. They are reserved for a later cluster-wide atelet
+cutover. Do not click **New project** or **Create** bucket. Do **not**
+set that URI on the SandboxAgent while atelet still uses rustfs.
+
+Today snapshots stay on rustfs (`gs://ate-snapshots/kagent/aws-budget`
+prefix). Path A (native GCS) and Path B (HMAC +
+`https://storage.googleapis.com`) are future work — see
+[snapshots-gcs.md](snapshots-gcs.md).
+
+Optional look-only:
 
 1. Open [https://console.cloud.google.com/](https://console.cloud.google.com/).
-2. Project picker (top bar) → select **viper-kagent**
-   (number **89434469276**, org **maniak.io**).
-3. Cloud Storage → **Buckets** → open **viper-kagent-ate-snapshots**.
-   - Location: **us-east1**.
-   - Public access: prevented.
-4. The kagent field is already
-   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/` —
-   see [snapshots-gcs.md](snapshots-gcs.md).
-
-### Optional: HMAC for S3-compatible XML API
-
-Only if you confirmed atelet is using the **S3** client (rustfs path),
-not native GCS:
-
-1. IAM → Service accounts → **Create** (`ate-snapshots` is a fine name).
-2. Grant **Storage Object Admin** on that bucket only (not the whole org).
-3. Cloud Storage → Settings → **Interoperability**.
-4. Create an HMAC key **for that service account**.
-5. Copy Access ID + Secret **once**. Put them in Vault, not git.
-6. Endpoint to document: `https://storage.googleapis.com`
-   ([GCS interoperability](https://cloud.google.com/storage/docs/interoperability)).
+2. Project picker → **viper-kagent** (89434469276, org **maniak.io**).
+3. Cloud Storage → **Buckets** → **viper-kagent-ate-snapshots**
+   (`us-east1`, public access prevented).
 
 ## AWS console (IAM user for the agent)
 
@@ -75,11 +66,11 @@ not native GCS:
 
 ## What to record on video
 
-1. **CLI**: prereqs, `01-gcp-snapshot-bucket.sh` (skip-create on the
-   existing `viper-kagent` bucket), Vault `kv put` with the secret
+1. **CLI**: prereqs, optional `01-gcp-snapshot-bucket.sh` (reserved
+   GCS, skip-create, do not wire), Vault `kv put` with the secret
    redacted, `docker build` + `ctr import`, host `kubectl kustomize`
    piped into `docker exec -i k3s-viper kubectl apply -f -`,
-   `get sandboxagent` until Ready.
+   `get sandboxagent` until Ready (`gs://ate-snapshots/kagent/aws-budget`).
 2. **UI**: kagent Agents list → `aws-budget` Ready → the spend/capacity
    question → tool calls → answer.
 3. **Do not** record Vault tokens, AWS secret keys, or GCP HMAC secrets.

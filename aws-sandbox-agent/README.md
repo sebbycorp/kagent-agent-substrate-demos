@@ -14,11 +14,12 @@ want to reproduce it by hand and understand each click.
    (`STREAMABLE_HTTP`), registered as `RemoteMCPServer/aws-budget-mcp`.
 3. AWS credentials in **Vault** `secret/platform/aws-budget`, synced by
    External Secrets Operator. **No keys in git.**
-4. Substrate snapshots in the existing GCP project **viper-kagent**
-   (89434469276, org **maniak.io**) at
-   **gs://viper-kagent-ate-snapshots** (`us-east1`), documented two ways
-   (native `gs://` vs GCS S3-compatible XML API). See
-   [docs/snapshots-gcs.md](docs/snapshots-gcs.md).
+4. Substrate snapshots on **rustfs** today (`gs://ate-snapshots/kagent/aws-budget`
+   prefix; omit `snapshotsConfig`, same as hello-substrate / fortigate).
+   GCP project **viper-kagent** / **gs://viper-kagent-ate-snapshots**
+   already exist and are reserved for a later cluster-wide atelet
+   cutover — do not create another, do not set that URI on this agent
+   yet. See [docs/snapshots-gcs.md](docs/snapshots-gcs.md).
 5. A chat in the kagent UI (`http://172.16.10.135:30500/`) that can answer:
 
    > What's our us-east-2 spend this month and are we over capacity?
@@ -50,7 +51,7 @@ aws-sandbox-agent/
     architecture.md         # mermaid + request path
     cli-runbook.md          # copy-paste CLI only
     ui-runbook.md           # kagent UI + GCP + AWS console clicks
-    snapshots-gcs.md        # existing viper-kagent bucket, gs:// vs HMAC/S3
+    snapshots-gcs.md        # rustfs today; reserved GCS for later cutover
     security.md             # least-privilege IAM, Vault/ESO, gVisor
   skills/                   # source for ConfigMap aws-budget-skills (not a gVisor mount)
     SKILL.md

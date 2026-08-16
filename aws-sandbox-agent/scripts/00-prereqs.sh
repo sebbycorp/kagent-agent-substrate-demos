@@ -27,7 +27,7 @@ fi
 if command -v gcloud >/dev/null 2>&1; then
   echo "ok   gcloud   $(gcloud version 2>/dev/null | head -n1)"
 else
-  echo "warn gcloud missing (needed to confirm the existing snapshot project/bucket)"
+  echo "warn gcloud missing (optional: confirm reserved GCS; snapshots today are rustfs)"
   warn=1
 fi
 if command -v aws >/dev/null 2>&1; then

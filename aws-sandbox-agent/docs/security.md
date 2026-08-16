@@ -131,14 +131,14 @@ Do not add a second store for this demo.
 | Compact JSON (truncated lists) | Printing `AWS_SECRET_ACCESS_KEY` or Authorization headers |
 | Honest API errors | Fake $0 spend to “be helpful” |
 
-## GCP snapshot bucket
+## Snapshot storage
 
-- Existing project **viper-kagent** (89434469276, org **maniak.io**)
-  so this lab cannot see other GCP workloads. Do not create another.
-- Bucket **gs://viper-kagent-ate-snapshots** in **us-east1**, public
-  access prevented.
-- Path A (native GCS): atelet identity gets object admin on **this
-  bucket only**.
-- Path B (HMAC): interoperability key for a bucket-scoped SA; store
-  HMAC in Vault, not in `k8s/`.
+- **Today:** rustfs in `ate-system` (bucket `ate-snapshots`). The
+  SandboxAgent omits `snapshotsConfig`. Bytes do not leave the cluster.
+- **Reserved (do not create, do not wire yet):** project
+  **viper-kagent** (89434469276, org **maniak.io**), bucket
+  **gs://viper-kagent-ate-snapshots** in **us-east1**. Later
+  cluster-wide atelet cutover only.
+- Path A / Path B (native GCS or HMAC) are future work. HMAC, if ever
+  used, goes in Vault, not `k8s/`.
 - Details: [snapshots-gcs.md](snapshots-gcs.md).
