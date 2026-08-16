@@ -1,0 +1,9 @@
+# Pinned for the lab image. FastMCP 2.x Streamable HTTP matches
+# kagent 0.10.0-rc2 RemoteMCPServer protocol STREAMABLE_HTTP.
+# Official google-cloud Python clients only — no gcloud CLI wrapper.
+fastmcp==2.14.7
+google-auth==2.40.3
+google-cloud-billing==1.20.0
+google-cloud-billing-budgets==1.21.0
+google-cloud-compute==1.50.0
+google-cloud-resource-manager==1.18.0
