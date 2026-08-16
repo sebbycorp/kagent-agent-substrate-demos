@@ -21,7 +21,7 @@ Do **not** put AWS keys, GCP keys, ServiceNow passwords, or tokens in this git r
 | Demo | Start here | What you get |
 |------|------------|--------------|
 | [aws-sandbox-agent/](aws-sandbox-agent/) | **[README.md](aws-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots on **rustfs** today (`gs://ate-snapshots/kagent/aws-budget`). Screenshots + architecture on the README; how-to in [JOURNEY.md](aws-sandbox-agent/JOURNEY.md). |
-| [service-now-sandbox-agent/](service-now-sandbox-agent/) | **[README.md](service-now-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for **ServiceNow IT tickets** on a personal developer instance (host name only: `https://dev203166.service-now.com`). FastMCP on `:8084/mcp`, Vault/ESO keys (`secret/platform/servicenow`), snapshots on **rustfs** today (`gs://ate-snapshots/kagent/servicenow`). Shot placeholders + architecture on the README; how-to in [JOURNEY.md](service-now-sandbox-agent/JOURNEY.md). |
+| [service-now-sandbox-agent/](service-now-sandbox-agent/) | **[README.md](service-now-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for **ServiceNow IT tickets** on a personal developer instance (host name only: `https://dev203166.service-now.com`). FastMCP on `:8084/mcp`, Vault/ESO keys (`secret/platform/servicenow`), snapshots on **rustfs** today (`gs://ate-snapshots/kagent/servicenow`). Architecture on the README; how-to in [JOURNEY.md](service-now-sandbox-agent/JOURNEY.md); live Viper record in [REPORT.md](service-now-sandbox-agent/REPORT.md). |
 
 ## How to use a demo
 

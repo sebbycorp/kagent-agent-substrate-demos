@@ -1,17 +1,11 @@
 # Shots
 
-Placeholders for the first live Viper apply of `servicenow`.
-Visual landing: [../README.md](../README.md). Why these are isolated
-sandboxes, not plain Agents: [../JOURNEY.md](../JOURNEY.md).
+Live kagent UI on Viper (2026-08-16). These are Chromium captures of the real SPA, not a reconstructed reel.
 
-No reconstructed or fake UI captures in this scaffold. After apply,
-drop real Chromium shots here:
+![Agents grid](ui-agents-grid.png)
 
-| File (when captured) | What it should show |
-|----------------------|---------------------|
-| `ui-agents-grid.png` | kagent Agents list including **kagent/servicenow** with the Sandbox badge |
-| `ui-chat-session.png` | Chat asking what tickets are open; real tool calls, not invented INCs |
-| `cli-live-status.png` | `kubectl get sandboxagent servicenow` Ready |
+![Chat session](ui-chat-session.png)
 
-Do not screenshot Vault `kv put` with a live password, and do not
-commit `kubectl get secret -o yaml`.
+![Scroll of the live chat](kagent-servicenow-live.gif)
+
+![kubectl](cli-live-status.png)

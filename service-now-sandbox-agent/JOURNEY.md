@@ -1,8 +1,11 @@
 # Journey: ServiceNow SandboxAgent on Viper
 
-**Visual start:** [README.md](README.md) (architecture + shot
-placeholders). This file is the how-to. Copy-paste without the story
-is [docs/cli-runbook.md](docs/cli-runbook.md).
+**Visual start:** [README.md](README.md) (architecture + live shots).
+**What we actually did on Viper** (2026-08-16, America/Toronto):
+**[REPORT.md](REPORT.md)**. This file is the how-to. The report
+is the live lab record. Live UI / live CLI stills of that run:
+**[shots/](shots/)**. Copy-paste without the story is
+[docs/cli-runbook.md](docs/cli-runbook.md).
 
 You are building a **gVisor-sandboxed** manager assistant that can
 answer *“what IT tickets are open, and how should we organize them?”*
@@ -277,6 +280,8 @@ Agent.
 ## 10. How we will record the video (UI + CLI)
 
 Record two panes. **Redact** Vault tokens and the ServiceNow password.
+Published shots are **live UI** (Chromium of the kagent SPA) and
+**live CLI** only. Do not commit a reconstructed reel.
 
 **CLI reel:**
 
