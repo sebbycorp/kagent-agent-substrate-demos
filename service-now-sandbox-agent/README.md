@@ -7,12 +7,19 @@ on a personal developer instance
 
 ## Live screenshots
 
-Only **live UI** (Chromium of the kagent SPA) and **live CLI**.
-Chromium stills `ui-agents-grid.png` and `ui-chat-session.png` are
-not in [shots/](shots/) yet — they land when captured. The live CLI
-still `cli-live-status.png` is a real terminal capture; the PNG did
-not persist in this workspace, so it is not embedded until the file
-is dropped in `shots/`.
+Chromium captures of the live kagent SPA on Viper (2026-08-16). Not a reconstructed reel.
+
+![Agents grid](shots/ui-agents-grid.png)
+
+*kagent Agents — aws-budget, fortigate, hello-substrate, servicenow.*
+
+![Live chat](shots/ui-chat-session.png)
+
+*Two live questions: open-ticket summary by priority, then VPN INC0000015 and DNS INC0000016.*
+
+![Scroll of that chat](shots/kagent-servicenow-live.gif)
+
+![kubectl](shots/cli-live-status.png)
 
 How-to is **[JOURNEY.md](JOURNEY.md)**. What we actually did on Viper
 (2026-08-16, America/Toronto): **[REPORT.md](REPORT.md)**.
