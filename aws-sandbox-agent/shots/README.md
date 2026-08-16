@@ -21,7 +21,3 @@ Budget $4.13 / $100. 0 EC2 / 0 ASG / 0 RDS / 0 EBS.*
 
 ![kubectl status](cli-live-status.png)
 
-**Reconstructed reel** of the same live A2A turn (not a Chromium
-pixel capture of the SPA):
-
-![demo gif](aws-budget-kagent-demo.gif)
