@@ -14,7 +14,7 @@ Proven runtime on Sebastian's Viper lab (`172.16.10.135`):
 | WorkerPool | `kagent-default` |
 | UI | NodePort **30500** |
 
-Do **not** put AWS keys, GCP service-account JSON, ServiceNow passwords, or tokens in this git repo.
+Do **not** put AWS keys, GCP service-account JSON, ServiceNow passwords, FortiGate tokens, or other secret **values** in this git repo.
 
 ## Demos
 
@@ -22,6 +22,7 @@ Do **not** put AWS keys, GCP service-account JSON, ServiceNow passwords, or toke
 |------|------------|--------------|
 | [aws-sandbox-agent/](aws-sandbox-agent/) | **[README.md](aws-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots on **rustfs** today (`gs://ate-snapshots/kagent/aws-budget`). Screenshots + architecture on the README; how-to in [JOURNEY.md](aws-sandbox-agent/JOURNEY.md). |
 | [service-now-sandbox-agent/](service-now-sandbox-agent/) | **[README.md](service-now-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for **ServiceNow IT tickets** on a personal developer instance (host name only: `https://dev203166.service-now.com`). FastMCP on `:8084/mcp`, Vault/ESO keys (`secret/platform/servicenow`), snapshots on **rustfs** today (`gs://ate-snapshots/kagent/servicenow`). Architecture on the README; how-to in [JOURNEY.md](service-now-sandbox-agent/JOURNEY.md); live Viper record in [REPORT.md](service-now-sandbox-agent/REPORT.md). |
+| [fortigate-sandbox-agent/](fortigate-sandbox-agent/) | **[README.md](fortigate-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for the home FortiGate **80F** (`fw-maniak-hq`, `172.16.10.1`). FastMCP on `:8084/mcp`, Vault/ESO token (`secret/platform/fortigate`), snapshots on **rustfs** today (`gs://ate-snapshots/kagent/fortigate`). GitOps in [k8s-viper](https://github.com/sebbycorp/k8s-viper). Screenshots + architecture on the README; live Viper record in [REPORT.md](fortigate-sandbox-agent/REPORT.md). |
 | [gcp-sandbox-agent/](gcp-sandbox-agent/) | **[README.md](gcp-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for GCP **budget and capacity** in **us-east1** (org **maniak.io**). FastMCP on `:8084/mcp`, Vault/ESO keys (`secret/platform/gcp-budget`), snapshots on **rustfs** today (`gs://ate-snapshots/kagent/gcp-budget`). Architecture on the README; how-to in [JOURNEY.md](gcp-sandbox-agent/JOURNEY.md). |
 
 ## How to use a demo
