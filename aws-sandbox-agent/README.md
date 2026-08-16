@@ -51,6 +51,7 @@ aws-sandbox-agent/
   README.md                 # this file
   JOURNEY.md                # human story: every click + command, in order
   REPORT.md                 # what we actually did on Viper (2026-08-16)
+  shots/                    # screenshots/gifs of the live Viper run
   docs/
     architecture.md         # mermaid + request path
     cli-runbook.md          # copy-paste CLI only

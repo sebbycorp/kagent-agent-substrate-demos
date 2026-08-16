@@ -2,7 +2,7 @@
 
 **What we actually did on Viper** (2026-08-16, America/Toronto):
 **[REPORT.md](REPORT.md)**. This file is the how-to. The report is the
-live lab record.
+live lab record. Screenshots and gifs of that run: **[shots/](shots/)**.
 
 This is the human path. Do it in order. Each step says **what you type
 or click**, **what you should see**, and **why it matters**. Copy-paste

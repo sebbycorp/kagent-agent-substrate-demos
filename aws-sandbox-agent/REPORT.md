@@ -107,6 +107,8 @@ Confirmed through that sandbox A2A path, not invented:
 
 ---
 
-## Demo GIF / mp4
+## Shots
 
-Files at box path `/workspace/aws-budget-shots/` are a **reconstructed reel of that real A2A turn**. They are not a Chromium pixel capture of the SPA.
+Screenshots and gifs of this live Viper run belong in **[shots/](shots/)**. Image files are not in this repo yet.
+
+The demo GIF/mp4 at box path `/workspace/aws-budget-shots/` is a **reconstructed reel of that real A2A turn**, not a Chromium pixel capture of the SPA. That box path is not this folder.
