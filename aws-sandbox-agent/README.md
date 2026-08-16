@@ -6,6 +6,9 @@ Its job: help the executive team manage **AWS budget and capacity in us-east-2**
 This is a HOW-TO plus a working agent. Follow **[JOURNEY.md](JOURNEY.md)** if you
 want to reproduce it by hand and understand each click.
 
+**What we actually did on Viper** (2026-08-16, America/Toronto):
+**[REPORT.md](REPORT.md)**.
+
 ## What you will have at the end
 
 1. A Go declarative `SandboxAgent` named **`aws-budget`** in namespace `kagent`,
@@ -47,6 +50,7 @@ rc2 always writes `ActorTemplate` with `spec.pauseImage` and
 aws-sandbox-agent/
   README.md                 # this file
   JOURNEY.md                # human story: every click + command, in order
+  REPORT.md                 # what we actually did on Viper (2026-08-16)
   docs/
     architecture.md         # mermaid + request path
     cli-runbook.md          # copy-paste CLI only
@@ -67,6 +71,7 @@ aws-sandbox-agent/
 
 | If you want… | Open |
 |--------------|------|
+| What we actually did on Viper | [REPORT.md](REPORT.md) |
 | To understand and reproduce | [JOURNEY.md](JOURNEY.md) |
 | Commands only | [docs/cli-runbook.md](docs/cli-runbook.md) |
 | Console clicks only | [docs/ui-runbook.md](docs/ui-runbook.md) |

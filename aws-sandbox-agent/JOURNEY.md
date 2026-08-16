@@ -1,5 +1,9 @@
 # Journey: AWS budget SandboxAgent on Viper
 
+**What we actually did on Viper** (2026-08-16, America/Toronto):
+**[REPORT.md](REPORT.md)**. This file is the how-to. The report is the
+live lab record.
+
 This is the human path. Do it in order. Each step says **what you type
 or click**, **what you should see**, and **why it matters**. Copy-paste
 without the story is [docs/cli-runbook.md](docs/cli-runbook.md).
