@@ -4,8 +4,21 @@ A gVisor `SandboxAgent` for executive GCP budget and capacity in
 **us-east1** (org **maniak.io**) on Viper (kagent **0.10.0-rc2** +
 Agent Substrate **0.0.9**).
 
-How-to is **[JOURNEY.md](JOURNEY.md)**. Live Chromium shots land after
-the Viper apply — this README does not invent screenshots.
+## Live screenshots
+
+![Five SandboxAgent cards in the kagent UI, including gcp-budget](shots/ui-agents-grid.png)
+
+*Live kagent UI, 2026-08-16. Isolated sandboxes (not plain Agents) —
+`kagent/gcp-budget` is on the grid.*
+
+![Live gcp-budget chat: billing ImportError + 0 VMs us-east1](shots/ui-chat-session.png)
+
+*Live kagent UI, 2026-08-16. Isolated sandbox chat: billing/budgets/MTD
+unavailable (`billing_budgets_v1` ImportError); 0 VMs in us-east1,
+not near quota.*
+
+How-to is **[JOURNEY.md](JOURNEY.md)**. What we actually did on Viper
+(2026-08-16, America/Toronto): **[REPORT.md](REPORT.md)**.
 
 ## Why isolated sandboxes (not a plain Agent)
 
@@ -101,6 +114,8 @@ rc2 always writes `ActorTemplate` with `spec.pauseImage` and
 gcp-sandbox-agent/
   README.md                 # visual landing (this file)
   JOURNEY.md                # how-to
+  REPORT.md                 # what we actually did on Viper (2026-08-16)
+  shots/                    # live Chromium UI + live CLI dump
   docs/                     # architecture, runbooks, security
   skills/                   # source for ConfigMap gcp-budget-skills
   images/gcp-budget-mcp/    # FastMCP image
@@ -114,15 +129,18 @@ gcp-sandbox-agent/
 |--------------|------|
 | Architecture (full mermaid + request path) | [docs/architecture.md](docs/architecture.md) |
 | How-to (every click) | [JOURNEY.md](JOURNEY.md) |
+| What we actually did on Viper | [REPORT.md](REPORT.md) |
 | IAM / Vault / gVisor | [docs/security.md](docs/security.md) |
 | Commands only | [docs/cli-runbook.md](docs/cli-runbook.md) |
 | Console clicks only | [docs/ui-runbook.md](docs/ui-runbook.md) |
 | Agent skills | [skills/SKILL.md](skills/SKILL.md) |
+| All shots | [shots/](shots/) |
 
 ## Honest limits
 
 - Image must be imported on the k3s node (`ctr images import`) before the MCP pod starts.
 - Vault path must exist or ExternalSecret stays unsynced.
 - Cloud Billing does **not** return month-to-date spend. Tools say unavailable.
+- Live Q1 (2026-08-16) also hit `ImportError: billing_budgets_v1` on the running `gcp-budget-mcp:dev` image. Rebuild/re-import before expecting `trail budget` $1. Do not invent spend.
 - There is **no** generic “run any gcloud” tool. No project-delete, no IAM-create.
 - Never commit GCP service-account JSON or Vault secret **values**.
