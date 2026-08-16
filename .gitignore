@@ -1,0 +1,14 @@
+# Never commit credentials or local env
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.json.key
+*-sa.json
+hmac-secret*
+aws-secret*
+vault-init.json
+.vault-token
