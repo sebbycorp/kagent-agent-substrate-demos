@@ -1,0 +1,82 @@
+# SandboxAgent shape matches kagent-crds 0.10.0-rc2 (kagent.dev/v1alpha2, runtime go).
+# Do not bump substrate past 0.0.9. Do not flatten valueFrom on the generated ActorTemplate.
+#
+# Omit snapshotsConfig (same as hello-substrate / fortigate / aws-budget on Viper).
+# kagent then writes ActorTemplate location gs://ate-snapshots/kagent/servicenow.
+# Today atelet 0.0.9 is ATE_STORAGE_BACKEND=s3 → rustfs.ate-system.svc:9000,
+# rustfs bucket ate-snapshots (1Gi PVC). The gs:// scheme is a prefix only;
+# objects live on rustfs, not Google Cloud. Do not set
+# gs://viper-kagent-ate-snapshots here — that rustfs bucket does not exist
+# and golden snapshot would fail.
+#
+# Skills: 0.10.0-rc2 SandboxAgentSpec CEL rejects spec.skills
+# ("spec.skills is not supported for sandbox agents"). There is no volume
+# mount into the gVisor actor. Live Viper pattern (fortigate, hello-substrate,
+# aws-budget) is declarative.systemMessage. We compose that message from
+# ConfigMap servicenow-skills via declarative.promptTemplate (published rc2
+# field). Do not set spec.skills. Do not invent ActorTemplate volume mounts.
+apiVersion: kagent.dev/v1alpha2
+kind: SandboxAgent
+metadata:
+  name: servicenow
+  namespace: kagent
+spec:
+  type: Declarative
+  description: Manager-facing ServiceNow IT ticket helper (gVisor)
+  declarative:
+    runtime: go
+    modelConfig: default-model-config
+    promptTemplate:
+      dataSources:
+        - kind: ConfigMap
+          name: servicenow-skills
+          alias: skills
+    systemMessage: |
+      You help managers check existing ServiceNow IT tickets and organize
+      them. You are read-mostly.
+
+      You run as a Go ADK declarative SandboxAgent on Agent Substrate
+      (gVisor actor, WorkerPool kagent-default). Your tools are sn_* MCP
+      wrappers against a ServiceNow personal developer instance. Prefer
+      read-only tools. Ask before any write (work note or assign).
+
+      Follow the skills inlined below (tickets, organize, executive-brief).
+      They are loaded from ConfigMap servicenow-skills into this system
+      message. You do not have a /skills directory or repo checkout.
+
+      Never invent ticket numbers, states, priorities, or assignees.
+      If a tool fails or returns empty, say so. Never print passwords,
+      basic-auth headers, or Vault tokens. Host name is fine.
+
+      Instance host (name only): https://dev203166.service-now.com
+
+      For a manager “what is open?” question, prefer sn_whoami +
+      sn_incident_summary + sn_list_incidents. Expand with get/search
+      when asked about a specific INC.
+
+      ---
+      {{include "skills/tickets.md"}}
+
+      ---
+      {{include "skills/organize.md"}}
+
+      ---
+      {{include "skills/executive-brief.md"}}
+    tools:
+      - type: McpServer
+        mcpServer:
+          name: servicenow-mcp
+          kind: RemoteMCPServer
+          apiGroup: kagent.dev
+          toolNames:
+            - sn_whoami
+            - sn_list_incidents
+            - sn_get_incident
+            - sn_search_incidents
+            - sn_incident_summary
+            - sn_list_requested_items
+            - sn_add_work_note
+            - sn_assign_incident
+  substrate:
+    workerPoolRef:
+      name: kagent-default
