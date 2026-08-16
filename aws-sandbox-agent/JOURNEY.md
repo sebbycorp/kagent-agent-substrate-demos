@@ -1,8 +1,10 @@
 # Journey: AWS budget SandboxAgent on Viper
 
 **What we actually did on Viper** (2026-08-16, America/Toronto):
-**[REPORT.md](REPORT.md)**. This file is the how-to. The report is the
-live lab record. Screenshots and gifs of that run: **[shots/](shots/)**.
+**[REPORT.md](REPORT.md)**. This file is the how-to **and** the why:
+isolated sandboxes, live UI screenshots, then every click. The report
+is the live lab record. Screenshots and gifs of that run:
+**[shots/](shots/)**.
 
 This is the human path. Do it in order. Each step says **what you type
 or click**, **what you should see**, and **why it matters**. Copy-paste
@@ -18,22 +20,43 @@ kubectl is `docker exec k3s-viper kubectl …`.
 
 ---
 
-## 1. Why Substrate (gVisor sandbox) vs a plain Agent Deployment
+## 1. Why Substrate (isolated sandboxes, not a plain Agent)
 
-A normal kagent `Agent` is a Kubernetes Deployment: one pod, always
-on, same isolation as any other container. That is fine for a cluster
-helper that only talks to the API server.
+A normal kagent `Agent` is a Kubernetes Deployment: always on, same
+isolation as any other pod. Fine for a cluster helper.
 
-This agent talks to **your AWS bill**. The model will call tools. Tools
-are code we wrote, but the session still has memory, a filesystem, and
-a network. Substrate puts that session in a **gVisor actor** on
-WorkerPool `kagent-default`:
+This `aws-budget` agent talks to the AWS bill. The model gets a
+filesystem, memory, and a network for the whole chat. Substrate puts
+that session in a **gVisor actor** (`SandboxAgent`) on WorkerPool
+`kagent-default`:
 
-- Idle chats **snapshot** (zstd) and free the worker. You are not
-  paying a pod per executive conversation.
-- Resume is restore, not “boot a new container and hope the prompt is
-  the same.”
-- gVisor is the isolation boundary between the actor and the k3s host.
+- **Isolated sandbox:** gVisor is the wall between the model session
+  and the Viper/k3s host. Tools still call AWS through the MCP pod;
+  keys stay in Vault, not in the actor.
+- Idle chats **snapshot** (zstd) and free the worker. The next
+  message restores the same session instead of booting a new
+  container.
+- No always-on pod per executive conversation.
+- A **golden snapshot** you can resume.
+
+**Tradeoff on this lab (honest):** nested gVisor on dockerized k3s,
+and snapshots are in-cluster rustfs today (`gs://` is a URI prefix
+only), not GCS.
+
+These are isolated sandboxes, not plain Agents. The kagent UI shows a
+**Sandbox: Agent Substrate** badge on the three cards (`aws-budget`,
+`fortigate`, `hello-substrate`). Classic `/api/a2a/<ns>/<name>`
+**404s** because there is no `Agent` CR; the UI uses
+`/api/a2a-sandboxes/kagent/aws-budget`.
+
+**Live UI** (Chromium screenshot of the tunneled kagent SPA,
+2026-08-16 — not reconstructed):
+
+![kagent Agents grid — three SandboxAgent cards](shots/ui-agents-grid.png)
+
+*Live kagent UI, 2026-08-16. Three SandboxAgent cards, all OpenAI
+gpt-5.5. `aws-budget` description: “Executive AWS budget and capacity
+assistant for us-east-2 (gVisor).”*
 
 If you only needed a Python container with boto3 and no snapshot
 lifecycle, a Deployment would be enough. That is **not** this demo.
@@ -259,6 +282,20 @@ may sit NotReady for a minute.
 `aws_cost_month`, `aws_ec2_capacity` (or the composed
 `aws_executive_brief`). Dollars and instance counts that match
 `scripts/03-smoke-aws.sh` on your laptop.
+
+**Live UI** (Chromium screenshot of the same chat, 2026-08-16 — not
+reconstructed):
+
+![kagent/aws-budget live chat — spend and capacity](shots/ui-chat-session.png)
+
+*Live kagent UI, 2026-08-16. User asked us-east-2 spend and capacity.
+10/10 tools. MTD **$0.67**. Budget **$4.13 / $100**. 0 EC2 / 0 ASG /
+0 RDS / 0 EBS.*
+
+A **reconstructed reel** of that same live A2A turn (not a Chromium
+pixel capture of the SPA):
+[aws-budget-kagent-demo.gif](shots/aws-budget-kagent-demo.gif)
+([mp4](shots/aws-budget-kagent-demo.mp4)).
 
 **If the model invents spend:** the tools did not run or CE is denied.
 Say “call the tools; do not estimate.” Check MCP logs:

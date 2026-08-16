@@ -4,10 +4,38 @@ A **secure gVisor `SandboxAgent`** on OSS **kagent 0.10.0-rc2** + **Agent Substr
 Its job: help the executive team manage **AWS budget and capacity in us-east-2**.
 
 This is a HOW-TO plus a working agent. Follow **[JOURNEY.md](JOURNEY.md)** if you
-want to reproduce it by hand and understand each click.
+want to reproduce it by hand and understand each click. That file is
+**why isolated sandboxes + live screenshots + how-to**, in one place.
 
 **What we actually did on Viper** (2026-08-16, America/Toronto):
 **[REPORT.md](REPORT.md)**.
+
+## Why isolated sandboxes (not a plain Agent)
+
+A normal kagent `Agent` is a Kubernetes Deployment: always on, same
+isolation as any other pod. Fine for a cluster helper.
+
+This agent talks to the AWS bill. The model gets a filesystem, memory,
+and a network for the whole chat. Substrate puts that session in a
+**gVisor actor** (`SandboxAgent`) on WorkerPool `kagent-default`:
+
+- Isolated sandbox: gVisor is the wall between the model session and
+  the Viper/k3s host. Tools still call AWS through the MCP pod; keys
+  stay in Vault, not in the actor.
+- Idle chats snapshot (zstd) and free the worker. Next message
+  restores the same session instead of booting a new container.
+- No always-on pod per executive conversation.
+- Golden snapshot you can resume.
+
+**Tradeoff on this lab:** nested gVisor on dockerized k3s, and
+snapshots are in-cluster rustfs today (`gs://` is a URI prefix only),
+not GCS.
+
+These are isolated sandboxes, not plain Agents. The kagent UI shows a
+**Sandbox: Agent Substrate** badge on the three cards. Classic
+`/api/a2a/<ns>/<name>` 404s (no `Agent` CR); the UI uses
+`/api/a2a-sandboxes/kagent/aws-budget`. Live Chromium shots:
+[shots/](shots/).
 
 ## What you will have at the end
 
@@ -49,9 +77,9 @@ rc2 always writes `ActorTemplate` with `spec.pauseImage` and
 ```text
 aws-sandbox-agent/
   README.md                 # this file
-  JOURNEY.md                # human story: every click + command, in order
+  JOURNEY.md                # why isolated sandboxes + live shots + how-to
   REPORT.md                 # what we actually did on Viper (2026-08-16)
-  shots/                    # screenshots/gifs of the live Viper run
+  shots/                    # live Chromium UI + reconstructed A2A reel
   docs/
     architecture.md         # mermaid + request path
     cli-runbook.md          # copy-paste CLI only
@@ -73,7 +101,7 @@ aws-sandbox-agent/
 | If you want… | Open |
 |--------------|------|
 | What we actually did on Viper | [REPORT.md](REPORT.md) |
-| To understand and reproduce | [JOURNEY.md](JOURNEY.md) |
+| Why isolated sandboxes + live shots + how-to | [JOURNEY.md](JOURNEY.md) |
 | Commands only | [docs/cli-runbook.md](docs/cli-runbook.md) |
 | Console clicks only | [docs/ui-runbook.md](docs/ui-runbook.md) |
 | Snapshot storage | [docs/snapshots-gcs.md](docs/snapshots-gcs.md) |
