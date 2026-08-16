@@ -66,11 +66,6 @@ flowchart LR
   vault --> eso --> mcp
 ```
 
-<img src="shots/aws-budget-kagent-demo.gif" width="480" alt="Reconstructed reel of the same live A2A spend/capacity turn">
-
-*Reconstructed reel of that same A2A turn (not a Chromium pixel
-capture of the SPA). [mp4](shots/aws-budget-kagent-demo.mp4)*
-
 ## What you will have at the end
 
 1. A Go declarative `SandboxAgent` named **`aws-budget`** in namespace `kagent`,
@@ -113,7 +108,7 @@ aws-sandbox-agent/
   README.md                 # visual landing (this file)
   JOURNEY.md                # how-to
   REPORT.md                 # what we actually did on Viper (2026-08-16)
-  shots/                    # live Chromium UI + reconstructed A2A reel
+  shots/                    # live Chromium UI + live CLI only
   docs/                     # architecture, runbooks, security, snapshots
   skills/                   # source for ConfigMap aws-budget-skills
   images/aws-budget-mcp/    # FastMCP image
