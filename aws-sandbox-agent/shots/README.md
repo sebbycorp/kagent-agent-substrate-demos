@@ -1,8 +1,8 @@
 # Shots
 
 Live Viper captures for `aws-budget` (2026-08-16, America/Toronto).
-Why these are isolated sandboxes, not plain Agents:
-[../JOURNEY.md](../JOURNEY.md).
+Visual landing: [../README.md](../README.md). Why these are isolated
+sandboxes, not plain Agents: [../JOURNEY.md](../JOURNEY.md).
 
 **Live UI** (Chromium screenshot of the tunneled kagent SPA,
 2026-08-16 — not reconstructed):

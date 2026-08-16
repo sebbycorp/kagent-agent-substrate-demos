@@ -1,14 +1,22 @@
 # aws-sandbox-agent
 
-A **secure gVisor `SandboxAgent`** on OSS **kagent 0.10.0-rc2** + **Agent Substrate 0.0.9**.
-Its job: help the executive team manage **AWS budget and capacity in us-east-2**.
+A gVisor `SandboxAgent` for executive AWS budget and capacity in
+**us-east-2** on Viper (kagent **0.10.0-rc2** + Agent Substrate **0.0.9**).
 
-This is a HOW-TO plus a working agent. Follow **[JOURNEY.md](JOURNEY.md)** if you
-want to reproduce it by hand and understand each click. That file is
-**why isolated sandboxes + live screenshots + how-to**, in one place.
+## Live screenshots
 
-**What we actually did on Viper** (2026-08-16, America/Toronto):
-**[REPORT.md](REPORT.md)**.
+![Three SandboxAgent cards in the kagent UI](shots/ui-agents-grid.png)
+
+*Live kagent UI, 2026-08-16. Isolated sandboxes (not plain Agents) —
+three SandboxAgent cards.*
+
+![Live $0.67 MTD / capacity chat](shots/ui-chat-session.png)
+
+*Live kagent UI, 2026-08-16. Isolated sandbox chat: $0.67 MTD
+us-east-2 spend and capacity.*
+
+How-to is **[JOURNEY.md](JOURNEY.md)**. What we actually did on Viper
+(2026-08-16, America/Toronto): **[REPORT.md](REPORT.md)**.
 
 ## Why isolated sandboxes (not a plain Agent)
 
@@ -31,11 +39,37 @@ and a network for the whole chat. Substrate puts that session in a
 snapshots are in-cluster rustfs today (`gs://` is a URI prefix only),
 not GCS.
 
-These are isolated sandboxes, not plain Agents. The kagent UI shows a
-**Sandbox: Agent Substrate** badge on the three cards. Classic
-`/api/a2a/<ns>/<name>` 404s (no `Agent` CR); the UI uses
-`/api/a2a-sandboxes/kagent/aws-budget`. Live Chromium shots:
-[shots/](shots/).
+The kagent UI shows a **Sandbox: Agent Substrate** badge on the three
+cards. Classic `/api/a2a/<ns>/<name>` 404s (no `Agent` CR); the UI
+uses `/api/a2a-sandboxes/kagent/aws-budget`.
+
+## Architecture
+
+Chat → kagent UI `:30500` → A2A sandboxes → gVisor actor →
+`RemoteMCPServer` → `aws-budget-mcp` → AWS **us-east-2**. Vault / ESO
+sit on the side (keys never in the actor). Full request path and
+snapshot notes: **[docs/architecture.md](docs/architecture.md)**.
+
+```mermaid
+flowchart LR
+  chat["Chat"]
+  ui["kagent UI<br/>:30500"]
+  a2a["A2A sandboxes"]
+  actor["gVisor actor<br/>ateom-gvisor:v0.0.9"]
+  rmcp["RemoteMCPServer<br/>aws-budget-mcp"]
+  mcp["aws-budget-mcp<br/>:8084/mcp"]
+  aws["AWS us-east-2"]
+  vault["Vault"]
+  eso["ESO"]
+
+  chat --> ui --> a2a --> actor --> rmcp --> mcp --> aws
+  vault --> eso --> mcp
+```
+
+<img src="shots/aws-budget-kagent-demo.gif" width="480" alt="Reconstructed reel of the same live A2A spend/capacity turn">
+
+*Reconstructed reel of that same A2A turn (not a Chromium pixel
+capture of the SPA). [mp4](shots/aws-budget-kagent-demo.mp4)*
 
 ## What you will have at the end
 
@@ -76,37 +110,30 @@ rc2 always writes `ActorTemplate` with `spec.pauseImage` and
 
 ```text
 aws-sandbox-agent/
-  README.md                 # this file
-  JOURNEY.md                # why isolated sandboxes + live shots + how-to
+  README.md                 # visual landing (this file)
+  JOURNEY.md                # how-to
   REPORT.md                 # what we actually did on Viper (2026-08-16)
   shots/                    # live Chromium UI + reconstructed A2A reel
-  docs/
-    architecture.md         # mermaid + request path
-    cli-runbook.md          # copy-paste CLI only
-    ui-runbook.md           # kagent UI + GCP + AWS console clicks
-    snapshots-gcs.md        # rustfs today; reserved GCS for later cutover
-    security.md             # least-privilege IAM, Vault/ESO, gVisor
-  skills/                   # source for ConfigMap aws-budget-skills (not a gVisor mount)
-    SKILL.md
-    budget.md
-    capacity.md
-    executive-brief.md
-  images/aws-budget-mcp/    # FastMCP image (Viper fortigate-mcp shape)
+  docs/                     # architecture, runbooks, security, snapshots
+  skills/                   # source for ConfigMap aws-budget-skills
+  images/aws-budget-mcp/    # FastMCP image
   k8s/                      # SandboxAgent + MCP + ExternalSecret + skills ConfigMap
   scripts/                  # prereqs, GCS bucket, image import, AWS smoke
 ```
 
-## Start
+## Docs
 
 | If you want… | Open |
 |--------------|------|
+| Architecture (full mermaid + request path) | [docs/architecture.md](docs/architecture.md) |
+| How-to (every click) | [JOURNEY.md](JOURNEY.md) |
 | What we actually did on Viper | [REPORT.md](REPORT.md) |
-| Why isolated sandboxes + live shots + how-to | [JOURNEY.md](JOURNEY.md) |
+| IAM / Vault / gVisor | [docs/security.md](docs/security.md) |
+| Snapshot storage | [docs/snapshots-gcs.md](docs/snapshots-gcs.md) |
 | Commands only | [docs/cli-runbook.md](docs/cli-runbook.md) |
 | Console clicks only | [docs/ui-runbook.md](docs/ui-runbook.md) |
-| Snapshot storage | [docs/snapshots-gcs.md](docs/snapshots-gcs.md) |
-| IAM / Vault / gVisor | [docs/security.md](docs/security.md) |
 | Agent skills | [skills/SKILL.md](skills/SKILL.md) |
+| All shots | [shots/](shots/) |
 
 ## Honest limits
 

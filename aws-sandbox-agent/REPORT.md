@@ -2,9 +2,9 @@
 
 **Date:** 2026-08-16 (America/Toronto)
 **Lab:** Sebastian’s Viper, kagent UI `http://172.16.10.135:30500/`
-**This file is a record.** The how-to — and the longer why — is
-[JOURNEY.md](JOURNEY.md). Nothing here is invented; every number and
-object name was confirmed live that morning.
+**This file is a record.** Visual start: [README.md](README.md).
+The how-to is [JOURNEY.md](JOURNEY.md). Nothing here is invented;
+every number and object name was confirmed live that morning.
 
 ---
 

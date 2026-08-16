@@ -1,8 +1,8 @@
 # Journey: AWS budget SandboxAgent on Viper
 
+**Visual start:** [README.md](README.md) (screenshots + architecture).
 **What we actually did on Viper** (2026-08-16, America/Toronto):
-**[REPORT.md](REPORT.md)**. This file is the how-to **and** the why:
-isolated sandboxes, live UI screenshots, then every click. The report
+**[REPORT.md](REPORT.md)**. This file is the how-to. The report
 is the live lab record. Screenshots and gifs of that run:
 **[shots/](shots/)**.
 

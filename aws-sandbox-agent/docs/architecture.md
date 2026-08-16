@@ -111,5 +111,6 @@ No generic CLI. No IAM create, terminate, or budget-delete.
 
 ## Related
 
+- Visual landing: [../README.md](../README.md)
 - Human walkthrough: [../JOURNEY.md](../JOURNEY.md)
 - Pins and pairing: same as [k8s-viper `docs/kagent-substrate.md`](https://github.com/sebbycorp/k8s-viper/blob/main/docs/kagent-substrate.md)
