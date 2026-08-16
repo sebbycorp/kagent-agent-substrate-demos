@@ -20,11 +20,11 @@ Do **not** put AWS keys, GCP keys, or tokens in this git repo.
 
 | Demo | Start here | What you get |
 |------|------------|--------------|
-| [aws-sandbox-agent/](aws-sandbox-agent/) | **[JOURNEY.md](aws-sandbox-agent/JOURNEY.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots on **rustfs** today (`gs://ate-snapshots/kagent/aws-budget`). Why + live UI shots + how-to: that JOURNEY. |
+| [aws-sandbox-agent/](aws-sandbox-agent/) | **[README.md](aws-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots on **rustfs** today (`gs://ate-snapshots/kagent/aws-budget`). Screenshots + architecture on the README; how-to in [JOURNEY.md](aws-sandbox-agent/JOURNEY.md). |
 
 ## How to use a demo
 
-1. Open the demo folder README (what it is, what “done” looks like).
+1. Open the demo folder README (screenshots + architecture — what it is, what “done” looks like).
 2. Walk [JOURNEY.md](aws-sandbox-agent/JOURNEY.md) in order — every UI click and CLI command, with *why*.
 3. Keep `docs/cli-runbook.md` open if you only want copy-paste commands.
 4. Never commit secret **values**. Manifests carry Vault **paths** and key **names** only.
