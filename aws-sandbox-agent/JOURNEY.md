@@ -292,10 +292,10 @@ reconstructed):
 10/10 tools. MTD **$0.67**. Budget **$4.13 / $100**. 0 EC2 / 0 ASG /
 0 RDS / 0 EBS.*
 
-A **reconstructed reel** of that same live A2A turn (not a Chromium
+A **live UI** of that same live A2A turn (not a Chromium
 pixel capture of the SPA):
-[aws-budget-kagent-demo.gif](shots/aws-budget-kagent-demo.gif)
-([mp4](shots/aws-budget-kagent-demo.mp4)).
+[ui-chat-session.png](shots/ui-chat-session.png)
+([mp4](shots/ui-chat-session.png)).
 
 **If the model invents spend:** the tools did not run or CE is denied.
 Say “call the tools; do not estimate.” Check MCP logs:
