@@ -1,0 +1,17 @@
+# Shape copied from kagent 0.10.0-rc2 helm/kagent/templates/toolserver-kagent.yaml
+# plus protocol (CRD default STREAMABLE_HTTP; live kagent-tool-server is the same).
+# Do not invent spec fields. Do not set spec.tls on an http:// URL.
+apiVersion: kagent.dev/v1alpha2
+kind: RemoteMCPServer
+metadata:
+  name: servicenow-mcp
+  namespace: kagent
+  labels:
+    app.kubernetes.io/name: servicenow-mcp
+    app.kubernetes.io/part-of: service-now-sandbox-agent
+spec:
+  description: Read-mostly ServiceNow incident and catalog-item tools
+  protocol: STREAMABLE_HTTP
+  timeout: 30s
+  sseReadTimeout: 5m0s
+  url: http://servicenow-mcp.kagent:8084/mcp

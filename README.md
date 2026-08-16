@@ -14,17 +14,18 @@ Proven runtime on Sebastian's Viper lab (`172.16.10.135`):
 | WorkerPool | `kagent-default` |
 | UI | NodePort **30500** |
 
-Do **not** put AWS keys, GCP keys, or tokens in this git repo.
+Do **not** put AWS keys, GCP keys, ServiceNow passwords, or tokens in this git repo.
 
 ## Demos
 
 | Demo | Start here | What you get |
 |------|------------|--------------|
 | [aws-sandbox-agent/](aws-sandbox-agent/) | **[README.md](aws-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots on **rustfs** today (`gs://ate-snapshots/kagent/aws-budget`). Screenshots + architecture on the README; how-to in [JOURNEY.md](aws-sandbox-agent/JOURNEY.md). |
+| [service-now-sandbox-agent/](service-now-sandbox-agent/) | **[README.md](service-now-sandbox-agent/README.md)** | Isolated gVisor `SandboxAgent` (not a plain Agent Deployment) for **ServiceNow IT tickets** on a personal developer instance (host name only: `https://dev203166.service-now.com`). FastMCP on `:8084/mcp`, Vault/ESO keys (`secret/platform/servicenow`), snapshots on **rustfs** today (`gs://ate-snapshots/kagent/servicenow`). Shot placeholders + architecture on the README; how-to in [JOURNEY.md](service-now-sandbox-agent/JOURNEY.md). |
 
 ## How to use a demo
 
 1. Open the demo folder README (screenshots + architecture — what it is, what “done” looks like).
-2. Walk [JOURNEY.md](aws-sandbox-agent/JOURNEY.md) in order — every UI click and CLI command, with *why*.
+2. Walk that demo’s `JOURNEY.md` in order — every UI click and CLI command, with *why*.
 3. Keep `docs/cli-runbook.md` open if you only want copy-paste commands.
 4. Never commit secret **values**. Manifests carry Vault **paths** and key **names** only.

@@ -1,0 +1,96 @@
+# Skill markdown included into SandboxAgent.spec.declarative.systemMessage
+# via promptTemplate (kagent 0.10.0-rc2). spec.skills is rejected on
+# SandboxAgent. Keep keys in sync with ../skills/*.md.
+# Do not put secrets here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: servicenow-skills
+  namespace: kagent
+data:
+  tickets.md: |
+    # Skill: tickets
+
+    Help a manager **see what IT tickets already exist** on the ServiceNow
+    personal developer instance. Read-only.
+
+    ## Do this
+
+    1. Call `sn_whoami` first if identity is not already known this turn.
+       Confirm the instance host and the user you are acting as.
+    2. Call `sn_list_incidents` for open/active incidents. Lead with
+       number, short description, state, priority, assignee.
+    3. If the human names an INC (or pastes a sys_id), call `sn_get_incident`.
+    4. If they describe a problem without a number, call `sn_search_incidents`
+       with their words. Do not invent a matching INC.
+    5. Keep the list compact. Do not dump every field unless asked.
+
+    ## Do not
+
+    - Guess ticket state from a previous chat.
+    - Treat a closed incident as open because it “sounds current.”
+    - Print the ServiceNow password or a basic-auth header.
+    - Open a new incident. This agent does not create tickets.
+
+    ## How to say it
+
+    Lead with one sentence: “N active incidents (as of tool time); P1/P2
+    count is M; oldest unassigned is INC….” Then a short table. If the
+    Table API is denied, say the HTTP status instead of fabricating a queue.
+  organize.md: |
+    # Skill: organize
+
+    Help a manager **group and tidy** the existing queue — by state,
+    priority, and assignee. Writes are optional and must be confirmed.
+
+    ## Do this
+
+    1. Call `sn_incident_summary` for counts by state and by priority.
+       Those counts are the source of truth.
+    2. Call `sn_list_incidents` if you need the actual INC rows behind
+       a bucket (unassigned, P1, on hold).
+    3. Call `sn_list_requested_items` when they ask about catalog / RITM
+       work, not just incidents.
+    4. Suggest an organize plan in words first: “assign INC0010001 to
+       alice; add a work note on INC0010002.”
+    5. Only after the human says yes, call `sn_assign_incident` or
+       `sn_add_work_note`. One write per confirmed item.
+
+    ## Do not
+
+    - Assign or comment without asking.
+    - Close, cancel, or resolve an incident (no such tool).
+    - Re-open a closed ticket.
+    - Invent an assignee who did not appear in a tool result or in the
+      human’s instruction.
+
+    ## How to say it
+
+    “Active queue: N New, M In Progress, K On Hold. Unassigned: … .
+    Proposed next step: … (say yes to write).”
+  executive-brief.md: |
+    # Skill: executive brief
+
+    One short brief a manager can read in **30 seconds**. Compose it from
+    live `sn_whoami`, `sn_incident_summary`, and `sn_list_incidents`.
+    If a tool errors, keep the line and write `unavailable (<reason>)` —
+    still no invented numbers.
+
+    ## Shape
+
+    ```text
+    Instance: <host>  User: <user_name>  As of: <UTC date>
+    Active incidents: <n>
+    By state: <New n, In Progress n, …>
+    By priority: <P1 n, P2 n, …>
+    Unassigned / needs eyes: <INC list or “none in this page”>
+    Catalog RITMs: <n or “not requested”>
+    Risk: <one sentence, or “none from these reads”>
+    ```
+
+    ## Rules
+
+    - Four to eight lines. No essay.
+    - Every count and INC number comes from a tool result in this turn.
+    - If something failed, keep the line and write `unavailable (<reason>)`.
+    - Never attach passwords, basic-auth headers, or Vault tokens.
