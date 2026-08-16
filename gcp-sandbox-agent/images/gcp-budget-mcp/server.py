@@ -189,12 +189,12 @@ def gcp_whoami() -> str:
 
 
 def _list_budgets_payload() -> dict[str, Any]:
-    from google.cloud import billing_budgets_v1
+    from google.cloud.billing import budgets_v1
 
     parent = _billing_account_name()
     if not parent:
         return _err("GCP_BILLING_ACCOUNT is not set")
-    client = billing_budgets_v1.BudgetServiceClient(credentials=_credentials())
+    client = budgets_v1.BudgetServiceClient(credentials=_credentials())
     rows: list[dict[str, Any]] = []
     for budget in client.list_budgets(parent=parent):
         amount = budget.amount

@@ -141,6 +141,6 @@ gcp-sandbox-agent/
 - Image must be imported on the k3s node (`ctr images import`) before the MCP pod starts.
 - Vault path must exist or ExternalSecret stays unsynced.
 - Cloud Billing does **not** return month-to-date spend. Tools say unavailable.
-- Live Q1 (2026-08-16) also hit `ImportError: billing_budgets_v1` on the running `gcp-budget-mcp:dev` image. Rebuild/re-import before expecting `trail budget` $1. Do not invent spend.
+- First live Q1 (2026-08-16) hit `ImportError: billing_budgets_v1` from the old `from google.cloud import billing_budgets_v1` alias. The working import is `from google.cloud.billing import budgets_v1`. After rebuild, Cloud Billing returned `Unauthenticated`. Do not invent spend.
 - There is **no** generic “run any gcloud” tool. No project-delete, no IAM-create.
 - Never commit GCP service-account JSON or Vault secret **values**.

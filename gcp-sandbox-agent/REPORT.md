@@ -101,6 +101,18 @@ Spend was recorded as unavailable, not invented.
 Identity used: `gcp-budget-agent@viper-kagent.iam.gserviceaccount.com`.
 Org: `maniak.io`. Region scope: `us-east1`.
 
+### After rebuild
+
+Import path patched to `from google.cloud.billing import budgets_v1`
+(`budgets_v1.BudgetServiceClient`). Image rebuilt as `gcp-budget-mcp:dev`;
+pod `gcp-budget-mcp-5598c4fd5b-nbtmk`.
+
+Live A2A Q1 no longer ImportErrors. Cloud Billing then returned
+`Unauthenticated` for `billing.accounts.get`, `billingbudgets.budgets.list`,
+and cost_by_service. Resource Manager still listed `viper-kagent`,
+`maniak-io`, `qr-maniak-io`. Trail budget $1 was still not returned.
+Month-to-date spend stays unavailable. No dollar amount invented.
+
 ### Q2 (~15.0s)
 
 Tools: `gcp_projects`, `gcp_compute_capacity`, `gcp_quotas`.
@@ -137,11 +149,12 @@ No GIF. Reconstructed reels are not allowed.
 
 ## Honest gap
 
-`images/gcp-budget-mcp/requirements.txt` already pins
-`google-cloud-billing-budgets==1.21.0`, but the running
-`gcp-budget-mcp:dev` image raised `ImportError: billing_budgets_v1`.
-Rebuild / re-import the image, then re-ask Q1 so `trail budget` $1
-can show. Do not invent spend while that import fails.
+First live run (Chromium chat shot): `google-cloud-billing-budgets==1.21.0`
+was already pinned and installed, but `from google.cloud import billing_budgets_v1`
+raised `ImportError`. After rebuild, the working import
+`from google.cloud.billing import budgets_v1` cleared that error. Billing
+APIs then returned `Unauthenticated`. Trail budget $1 still not returned.
+MTD spend stays unavailable. Do not invent spend.
 
 ---
 
