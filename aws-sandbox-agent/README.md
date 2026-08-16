@@ -14,8 +14,10 @@ want to reproduce it by hand and understand each click.
    (`STREAMABLE_HTTP`), registered as `RemoteMCPServer/aws-budget-mcp`.
 3. AWS credentials in **Vault** `secret/platform/aws-budget`, synced by
    External Secrets Operator. **No keys in git.**
-4. A **new GCP project** and a GCS bucket for Substrate snapshots, documented
-   two ways (native `gs://` vs GCS S3-compatible XML API). See
+4. Substrate snapshots in the existing GCP project **viper-kagent**
+   (89434469276, org **maniak.io**) at
+   **gs://viper-kagent-ate-snapshots** (`us-east1`), documented two ways
+   (native `gs://` vs GCS S3-compatible XML API). See
    [docs/snapshots-gcs.md](docs/snapshots-gcs.md).
 5. A chat in the kagent UI (`http://172.16.10.135:30500/`) that can answer:
 
@@ -48,7 +50,7 @@ aws-sandbox-agent/
     architecture.md         # mermaid + request path
     cli-runbook.md          # copy-paste CLI only
     ui-runbook.md           # kagent UI + GCP + AWS console clicks
-    snapshots-gcs.md        # new GCP project, bucket, gs:// vs HMAC/S3
+    snapshots-gcs.md        # existing viper-kagent bucket, gs:// vs HMAC/S3
     security.md             # least-privilege IAM, Vault/ESO, gVisor
   skills/                   # ALL agent skills live here
     SKILL.md

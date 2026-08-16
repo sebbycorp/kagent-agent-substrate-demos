@@ -20,7 +20,7 @@ Do **not** put AWS keys, GCP keys, or tokens in this git repo.
 
 | Demo | Start here | What you get |
 |------|------------|--------------|
-| [aws-sandbox-agent/](aws-sandbox-agent/) | **[JOURNEY.md](aws-sandbox-agent/JOURNEY.md)** | Secure gVisor `SandboxAgent` for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots aimed at a **new GCP project** GCS bucket. |
+| [aws-sandbox-agent/](aws-sandbox-agent/) | **[JOURNEY.md](aws-sandbox-agent/JOURNEY.md)** | Secure gVisor `SandboxAgent` for AWS **budget and capacity** in **us-east-2**. FastMCP on `:8084/mcp`, Vault/ESO keys, snapshots in **gs://viper-kagent-ate-snapshots** (project **viper-kagent**). |
 
 ## How to use a demo
 

@@ -2,7 +2,8 @@
 
 Executive chat in the kagent UI becomes a gVisor actor that calls a
 read-mostly FastMCP server, which calls AWS **us-east-2**. Actor memory
-snapshots are meant to land in a **GCS bucket in a new GCP project**.
+snapshots land in **gs://viper-kagent-ate-snapshots** in GCP project
+**viper-kagent** (org **maniak.io**, number **89434469276**).
 
 ## Request path
 
@@ -46,7 +47,7 @@ flowchart TB
   end
   vault["Vault secret/platform/aws-budget"]
   aws["AWS account · us-east-2"]
-  gcs["GCS bucket in new GCP project"]
+  gcs["GCS gs://viper-kagent-ate-snapshots<br/>project viper-kagent"]
 
   ui --> ctrl --> pool
   ctrl --> deploy

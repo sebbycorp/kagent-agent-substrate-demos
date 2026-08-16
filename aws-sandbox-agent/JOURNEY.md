@@ -77,35 +77,39 @@ be tempted to upgrade. That is how Viper already burned time. Stay on
 
 ---
 
-## 3. Create a GCP project + GCS bucket for snapshots
+## 3. Use the existing GCP project + GCS bucket for snapshots
 
 Substrate checkpoints actor RAM/filesystem to **object storage**.
-You asked for that storage in a **new GCP project** (you said “gcp s3”).
+The Viper lab already has that storage in GCP — **do not create a new
+project or bucket**.
+
+| | |
+|--|--|
+| Org | **maniak.io** |
+| Project | **viper-kagent** (number **89434469276**) |
+| Bucket | **gs://viper-kagent-ate-snapshots** |
+| Location | **us-east1** |
 
 **Click path** (also in [docs/ui-runbook.md](docs/ui-runbook.md)):
 
 1. [Google Cloud console](https://console.cloud.google.com/) → project
-   picker → **New project**. Name it something you will recognize
-   (`ate-snapshots-lab`). Copy the **project ID**.
-2. Link **billing**. GCS will not create a bucket without it.
-3. Enable **Cloud Storage**.
-4. Create a bucket, public access **prevented**, single region
-   (lab default in the script: `us-east1`). Name must be globally unique.
+   picker → select **viper-kagent** (not **New project**).
+2. Cloud Storage → Buckets → confirm **viper-kagent-ate-snapshots**
+   in **us-east1**, public access prevented.
+3. The kagent URI is already set in `k8s/sandboxagent.yaml`:
+   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/`.
 
-**CLI path** (prints commands unless `APPLY=1`):
+**CLI path** (defaults to the existing project + bucket; skips create):
 
 ```bash
-export GCP_PROJECT_ID="ate-snapshots-$(whoami)-$(date +%Y%m%d)"
-export GCP_BILLING_ACCOUNT="XXXXXX-XXXXXX-XXXXXX"
-export GCS_BUCKET="ate-snapshots-${GCP_PROJECT_ID}"
 ./scripts/01-gcp-snapshot-bucket.sh
 ```
 
-**What you should see:** a project id, a bucket name, and a URI like
-`gs://ate-snapshots-…/kagent/aws-budget/`.
+**What you should see:** project `viper-kagent`, bucket
+`gs://viper-kagent-ate-snapshots`, and `existing lab … — skip create`.
 
-**Why a new project:** blast radius. Snapshot objects are sandbox
-memory. They do not belong in a production data project, and this
+**Why this project:** blast radius. Snapshot objects are sandbox
+memory. They stay in the dedicated `viper-kagent` project, and this
 agent’s AWS IAM must not include `s3:*` on customer buckets.
 
 ---
@@ -121,11 +125,11 @@ kagent 0.10.0-rc2 `SandboxAgent.spec.substrate.snapshotsConfig.location`
 is documented as a **GCS URI**, validation `^gs://`, default
 `gs://ate-snapshots/<namespace>/<name>/`.
 
-Edit `k8s/sandboxagent.yaml` and replace the bucket:
+`k8s/sandboxagent.yaml` already points at the lab bucket:
 
 ```yaml
 snapshotsConfig:
-  location: gs://YOUR_BUCKET/kagent/aws-budget/
+  location: gs://viper-kagent-ate-snapshots/kagent/aws-budget/
 ```
 
 **What you should see after apply:**
@@ -151,7 +155,7 @@ docker exec k3s-viper kubectl -n ate-system get pods,svc
 
 | If you see… | Then… |
 |-------------|--------|
-| No rustfs; atelet has GCS/ADC credentials | Path A: native `gs://` to your new bucket |
+| No rustfs; atelet has GCS/ADC credentials | Path A: native `gs://` to `gs://viper-kagent-ate-snapshots` |
 | rustfs (or atelet env is AWS/S3) | Path B: GCS **XML/S3 interop** — HMAC keys, endpoint `https://storage.googleapis.com`. **Still** set location to `gs://…` because the kagent CRD rejects `s3://`. |
 
 **Why this split exists:** kagent’s CRD and atelet’s client were not
@@ -319,8 +323,9 @@ Record two panes. **Redact** Vault tokens, AWS secrets, HMAC secrets.
 **CLI reel (about two minutes):**
 
 1. `scripts/00-prereqs.sh` — tools present, cluster reachable.
-2. `scripts/01-gcp-snapshot-bucket.sh` — show the planned `gs://` URI
-   (APPLY=1 only if you want the live create on camera).
+2. `scripts/01-gcp-snapshot-bucket.sh` — show the existing
+   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/` URI
+   (create is skipped; the project and bucket already exist).
 3. Vault `kv put` with the secret **off screen** or `***`.
 4. `scripts/02-build-import-mcp.sh`.
 5. `kubectl apply` + `get sandboxagent -w` until Ready.
@@ -328,7 +333,8 @@ Record two panes. **Redact** Vault tokens, AWS secrets, HMAC secrets.
 
 **UI reel:**
 
-1. GCP console: new project + bucket (or skip if CLI created it).
+1. GCP console: project **viper-kagent** + bucket
+   **viper-kagent-ate-snapshots** (already exist — do not create).
 2. AWS IAM policy attach (no key download on camera).
 3. kagent `:30500` → Agents → `aws-budget` Ready.
 4. The spend/capacity question → tool calls → executive-shaped answer.

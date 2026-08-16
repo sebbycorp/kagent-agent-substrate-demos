@@ -15,16 +15,20 @@ K() { docker exec k3s-viper kubectl "$@"; }
 "$DEMO/scripts/00-prereqs.sh"
 ```
 
-## GCP project + snapshot bucket
+## GCP project + snapshot bucket (already exist)
+
+Project **viper-kagent** (89434469276, org **maniak.io**) and bucket
+**gs://viper-kagent-ate-snapshots** (`us-east1`) are already provisioned.
+Do not create a new project or bucket. The script defaults to those
+values and skips create when they exist.
 
 ```bash
-# prints gcloud commands by default. APPLY=1 actually creates.
-export GCP_PROJECT_ID="ate-snapshots-$(whoami)-$(date +%Y%m%d)"
-export GCP_BILLING_ACCOUNT="XXXXXX-XXXXXX-XXXXXX"   # from: gcloud billing accounts list
-export GCS_BUCKET="ate-snapshots-${GCP_PROJECT_ID}"
-export GCS_LOCATION="us-east1"
+# prints / probes; create is skipped for the existing lab pair
 "$DEMO/scripts/01-gcp-snapshot-bucket.sh"
-# APPLY=1 "$DEMO/scripts/01-gcp-snapshot-bucket.sh"
+# optional overrides (only if you are not using the lab bucket):
+# export GCP_PROJECT_ID="viper-kagent"
+# export GCS_BUCKET="viper-kagent-ate-snapshots"
+# export GCS_LOCATION="us-east1"
 ```
 
 Inspect what kagent will write (must stay `gs://`):
@@ -99,5 +103,5 @@ Wait until `SandboxAgent/aws-budget` Ready. First golden snapshot is often 60–
 
 ```bash
 kubectl kustomize "$DEMO/k8s" | docker exec -i k3s-viper kubectl delete -f - --ignore-not-found
-# do not delete the GCP project or AWS user unless you intend to
+# do not delete the existing GCP project (viper-kagent) or AWS user unless you intend to
 ```

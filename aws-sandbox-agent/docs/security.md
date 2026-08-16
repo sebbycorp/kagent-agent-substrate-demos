@@ -133,8 +133,10 @@ Do not add a second store for this demo.
 
 ## GCP snapshot bucket
 
-- New project so this lab cannot see other GCP workloads.
-- Bucket: public access prevented.
+- Existing project **viper-kagent** (89434469276, org **maniak.io**)
+  so this lab cannot see other GCP workloads. Do not create another.
+- Bucket **gs://viper-kagent-ate-snapshots** in **us-east1**, public
+  access prevented.
 - Path A (native GCS): atelet identity gets object admin on **this
   bucket only**.
 - Path B (HMAC): interoperability key for a bucket-scoped SA; store

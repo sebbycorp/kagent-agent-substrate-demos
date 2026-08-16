@@ -2,7 +2,7 @@
 # Do not bump substrate past 0.0.9. Do not flatten valueFrom on the generated ActorTemplate.
 #
 # snapshotsConfig.location is validated ^gs:// by kagent (AgentHarnessSubstrateSnapshotsConfig).
-# Replace ate-snapshots-REPLACE_ME with the GCS bucket from docs/snapshots-gcs.md.
+# Lab bucket already exists: gs://viper-kagent-ate-snapshots (project viper-kagent).
 # Default if this block is omitted: gs://ate-snapshots/kagent/aws-budget/
 apiVersion: kagent.dev/v1alpha2
 kind: SandboxAgent
@@ -58,4 +58,4 @@ spec:
     workerPoolRef:
       name: kagent-default
     snapshotsConfig:
-      location: gs://ate-snapshots-REPLACE_ME/kagent/aws-budget/
+      location: gs://viper-kagent-ate-snapshots/kagent/aws-budget/

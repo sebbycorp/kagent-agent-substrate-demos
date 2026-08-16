@@ -22,20 +22,20 @@ Story + why: [../JOURNEY.md](../JOURNEY.md).
    call, the model ignored the system message — say “use the tools.”
 8. Do not paste AWS keys into the chat box.
 
-## GCP console (new project + bucket)
+## GCP console (existing project + bucket)
+
+The project and bucket **already exist**. Do not click **New project**
+or **Create** bucket.
 
 1. Open [https://console.cloud.google.com/](https://console.cloud.google.com/).
-2. Project picker (top bar) → **New project**.
-   - Name: something like `ate-snapshots-lab`.
-   - Note the **project ID** (not just the name).
-3. Billing → link a billing account (GCS needs it).
-4. APIs & Services → Enable **Cloud Storage**.
-5. Cloud Storage → **Buckets** → **Create**.
-   - Name: globally unique, e.g. `ate-snapshots-<project-id>`.
-   - Location: a single region you accept (lab often `us-east1`).
-   - Prevent public access: keep the default (public access prevented).
-6. Copy the bucket name. The kagent field will be
-   `gs://<bucket>/kagent/aws-budget/` — see [snapshots-gcs.md](snapshots-gcs.md).
+2. Project picker (top bar) → select **viper-kagent**
+   (number **89434469276**, org **maniak.io**).
+3. Cloud Storage → **Buckets** → open **viper-kagent-ate-snapshots**.
+   - Location: **us-east1**.
+   - Public access: prevented.
+4. The kagent field is already
+   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/` —
+   see [snapshots-gcs.md](snapshots-gcs.md).
 
 ### Optional: HMAC for S3-compatible XML API
 
@@ -75,9 +75,10 @@ not native GCS:
 
 ## What to record on video
 
-1. **CLI**: prereqs, `gcloud` project/bucket (or the script dry-run),
-   Vault `kv put` with the secret redacted, `docker build` + `ctr import`,
-   `kubectl apply -k`, `get sandboxagent` until Ready.
+1. **CLI**: prereqs, `01-gcp-snapshot-bucket.sh` (skip-create on the
+   existing `viper-kagent` bucket), Vault `kv put` with the secret
+   redacted, `docker build` + `ctr import`, `kubectl apply -k`,
+   `get sandboxagent` until Ready.
 2. **UI**: kagent Agents list → `aws-budget` Ready → the spend/capacity
    question → tool calls → answer.
 3. **Do not** record Vault tokens, AWS secret keys, or GCP HMAC secrets.

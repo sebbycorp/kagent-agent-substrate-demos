@@ -1,9 +1,17 @@
-# Substrate snapshots → GCS (new GCP project)
+# Substrate snapshots → GCS (existing viper-kagent project)
 
-The user asked for **“GCP S3”** — a GCS bucket in a **new GCP project**,
-usable the way people use S3. This file records what the **published**
-kagent 0.10.0-rc2 / Substrate 0.0.9 docs actually say. Nothing here is
-inferred from a later chart.
+The Viper lab already has a GCS bucket in GCP project **viper-kagent**,
+usable the way people use S3. **Do not create a new project or bucket.**
+
+| | |
+|--|--|
+| Org | **maniak.io** |
+| Project | **viper-kagent** (number **89434469276**) |
+| Bucket | **gs://viper-kagent-ate-snapshots** |
+| Location | **us-east1** |
+
+This file records what the **published** kagent 0.10.0-rc2 / Substrate
+0.0.9 docs actually say. Nothing here is inferred from a later chart.
 
 ## What I verified (do not invent past this)
 
@@ -30,11 +38,11 @@ spec:
     workerPoolRef:
       name: kagent-default
     snapshotsConfig:
-      location: gs://ate-snapshots-REPLACE_ME/kagent/aws-budget/
+      location: gs://viper-kagent-ate-snapshots/kagent/aws-budget/
 ```
 
-Replace `ate-snapshots-REPLACE_ME` with your real bucket name. Leave the
-`gs://` scheme.
+The `gs://` scheme is required. The bucket already exists; do not
+substitute a placeholder or create a second one.
 
 ### 2. Substrate 0.0.9 ActorTemplate uses the same prefix shape
 
@@ -102,14 +110,17 @@ that is the split-brain the two layers allow: **URI says GCS, client may be S3**
 
 Use this when atelet is (or will be) the **GCS** client.
 
-1. New GCP project + bucket ([ui-runbook.md](ui-runbook.md) or
-   `scripts/01-gcp-snapshot-bucket.sh`).
+1. Confirm the existing project + bucket ([ui-runbook.md](ui-runbook.md)
+   or `scripts/01-gcp-snapshot-bucket.sh` — it skips create when they
+   already exist).
 2. Give atelet a Google identity that can `storage.objects.create/get/delete`
-   on that bucket (Workload Identity, or a SA JSON in a Secret — **not git**).
-3. Set `snapshotsConfig.location: gs://<bucket>/kagent/aws-budget/`.
+   on `gs://viper-kagent-ate-snapshots` (Workload Identity, or a SA JSON
+   in a Secret — **not git**).
+3. `k8s/sandboxagent.yaml` already sets
+   `snapshotsConfig.location: gs://viper-kagent-ate-snapshots/kagent/aws-budget/`.
 4. Ready looks like:
 
-   `status.goldenSnapshot: gs://<bucket>/kagent/aws-budget/<id>/<time>-<rand>`
+   `status.goldenSnapshot: gs://viper-kagent-ate-snapshots/kagent/aws-budget/<id>/<time>-<rand>`
 
 I did **not** find a published 0.0.9 Helm values key that switches atelet
 from rustfs to GCS. Do not invent `objectStorage.type=gcs` in a values
@@ -132,12 +143,14 @@ the key names from Longhorn blogs).
 
 Then:
 
-1. Same new project + bucket as Path A.
+1. Same existing project + bucket as Path A (`viper-kagent` /
+   `gs://viper-kagent-ate-snapshots`). Do not create another.
 2. Service account with object admin on **that bucket only**.
 3. Cloud Storage → Settings → Interoperability → HMAC key for that SA.
 4. Point atelet’s S3 endpoint at `https://storage.googleapis.com`.
 5. Put HMAC id/secret in Vault. **Never git.**
-6. **Keep** `snapshotsConfig.location` as `gs://<bucket>/kagent/aws-budget/`.
+6. **Keep** `snapshotsConfig.location` as
+   `gs://viper-kagent-ate-snapshots/kagent/aws-budget/`.
    The kagent CRD will not accept `s3://`.
 
 If atelet requires `s3://` in the *template* location, that would be a
@@ -149,7 +162,7 @@ mismatch (same rule as `valueFrom` vs 0.0.12).
 
 | Step | Where |
 |------|--------|
-| Create project + bucket | `scripts/01-gcp-snapshot-bucket.sh` or GCP console |
+| Confirm existing project + bucket | `scripts/01-gcp-snapshot-bucket.sh` (skips create) or GCP console |
 | Set location on the agent | `k8s/sandboxagent.yaml` → `spec.substrate.snapshotsConfig.location` |
 | Confirm scheme | must start with `gs://` |
 | Confirm backend | `kubectl -n ate-system get pods` + atelet env |
