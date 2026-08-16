@@ -1,0 +1,14 @@
+NAME                                      READY   ACCEPTED
+sandboxagent.kagent.dev/fortigate         True    True
+
+NAME                                            PROTOCOL          URL                                    ACCEPTED
+remotemcpserver.kagent.dev/fortigate-mcp        STREAMABLE_HTTP   http://fortigate-mcp.kagent:8084/mcp   True
+
+NAME                                READY   STATUS    RESTARTS   AGE
+pod/fortigate-mcp-745d4c9ff5-bxjvc  1/1     Running   0          19h
+
+NAME                                           CLASS
+actortemplate.ate.dev/fortigate-b8bc65944f9bc4df   gvisor
+location: gs://ate-snapshots/kagent/fortigate
+goldenSnapshot: gs://ate-snapshots/kagent/fortigate/2bcc7a8b-48e0-4b20-aa0d-2bfe0ff5fb1e/2026-08-16T02:45:18Z-R7ZXMSV6CEC2D4NVN4XEX5UDO3
+phase: Ready
