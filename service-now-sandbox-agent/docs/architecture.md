@@ -107,4 +107,5 @@ No generic shell. No password print. No incident create / close / delete.
 
 - Visual landing: [../README.md](../README.md)
 - Human walkthrough: [../JOURNEY.md](../JOURNEY.md)
+- What we actually did on Viper: [../REPORT.md](../REPORT.md)
 - Pins and pairing: same as [k8s-viper `docs/kagent-substrate.md`](https://github.com/sebbycorp/k8s-viper/blob/main/docs/kagent-substrate.md)

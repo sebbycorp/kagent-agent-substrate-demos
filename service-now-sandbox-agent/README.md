@@ -7,12 +7,15 @@ on a personal developer instance
 
 ## Live screenshots
 
-Shots land here after the first live Viper apply. Placeholders only —
-no reconstructed or fake UI captures in this scaffold.
+Only **live UI** (Chromium of the kagent SPA) and **live CLI**.
+Chromium stills `ui-agents-grid.png` and `ui-chat-session.png` are
+not in [shots/](shots/) yet — they land when captured. The live CLI
+still `cli-live-status.png` is a real terminal capture; the PNG did
+not persist in this workspace, so it is not embedded until the file
+is dropped in `shots/`.
 
-See **[shots/README.md](shots/README.md)**.
-
-How-to is **[JOURNEY.md](JOURNEY.md)**.
+How-to is **[JOURNEY.md](JOURNEY.md)**. What we actually did on Viper
+(2026-08-16, America/Toronto): **[REPORT.md](REPORT.md)**.
 
 ## Why isolated sandboxes (not a plain Agent)
 
@@ -102,7 +105,8 @@ rc2 always writes `ActorTemplate` with `spec.pauseImage` and
 service-now-sandbox-agent/
   README.md                 # visual landing (this file)
   JOURNEY.md                # how-to
-  shots/                    # placeholders until first live Viper apply
+  REPORT.md                 # what we actually did on Viper (2026-08-16)
+  shots/                    # live Chromium UI + live CLI only
   docs/                     # architecture, runbooks, security
   skills/                   # source for ConfigMap servicenow-skills
   images/servicenow-mcp/    # FastMCP image
@@ -116,11 +120,12 @@ service-now-sandbox-agent/
 |--------------|------|
 | Architecture (full mermaid + request path) | [docs/architecture.md](docs/architecture.md) |
 | How-to (every click) | [JOURNEY.md](JOURNEY.md) |
+| What we actually did on Viper | [REPORT.md](REPORT.md) |
 | Vault / gVisor / Table API | [docs/security.md](docs/security.md) |
 | Commands only | [docs/cli-runbook.md](docs/cli-runbook.md) |
 | Console clicks only | [docs/ui-runbook.md](docs/ui-runbook.md) |
 | Agent skills | [skills/SKILL.md](skills/SKILL.md) |
-| Shot placeholders | [shots/](shots/) |
+| Live shots | [shots/](shots/) |
 
 ## Honest limits
 
