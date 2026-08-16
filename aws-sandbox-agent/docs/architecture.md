@@ -2,7 +2,10 @@
 
 Executive chat in the kagent UI becomes a gVisor actor that calls a
 read-mostly FastMCP server, which calls AWS **us-east-2**. Actor memory
-snapshots are meant to land in a **GCS bucket in a new GCP project**.
+snapshots land on in-cluster **rustfs** today
+(`gs://ate-snapshots/kagent/aws-budget` prefix). GCP
+**gs://viper-kagent-ate-snapshots** exists but is reserved for a later
+cluster-wide atelet cutover — not wired on this agent.
 
 ## Request path
 
@@ -46,14 +49,27 @@ flowchart TB
   end
   vault["Vault secret/platform/aws-budget"]
   aws["AWS account · us-east-2"]
-  gcs["GCS bucket in new GCP project"]
+  rustfs["rustfs ate-snapshots<br/>gs:// prefix only"]
 
   ui --> ctrl --> pool
   ctrl --> deploy
   vault --> eso --> deploy
   deploy -->|"STS / CE / EC2 / …"| aws
-  pool --> atelet --> gcs
+  pool --> atelet --> rustfs
 ```
+
+## Skills (systemMessage, not a mount)
+
+kagent 0.10.0-rc2 `SandboxAgentSpec` **rejects** `spec.skills`
+(`!has(self.skills)`). There is no CRD field that mounts
+`skills/*.md` into the gVisor actor. Live Viper
+(`platform/kagent-ai/fortigate-agent.yaml`, `hello-substrate.yaml`)
+puts instructions in `declarative.systemMessage`.
+
+This demo keeps the markdown under `skills/` and applies the same
+text as ConfigMap `aws-budget-skills`. `declarative.promptTemplate.dataSources`
+(a published rc2 field) includes those keys into `systemMessage`. The
+actor sees the skill text in the prompt, not as files under `/skills`.
 
 ## Why this is not a plain `Agent` Deployment
 
@@ -64,15 +80,16 @@ untrusted tool use stays off the k3s host. That is the point of this demo.
 
 ## Snapshot location (two layers — do not collapse them)
 
-| Layer | What it is | What we set |
+| Layer | What it is | What we set **today** |
 |-------|------------|-------------|
-| kagent CRD | `SandboxAgent.spec.substrate.snapshotsConfig.location` | Must match `^gs://`. Default if unset: `gs://ate-snapshots/<ns>/<name>/` |
-| atelet backend | GCS **or** S3 client, chosen at **atelet startup** | Stock substrate Helm often ships in-cluster **rustfs** (S3). Native GCS needs the GCS client + ADC |
+| kagent CRD | `SandboxAgent.spec.substrate.snapshotsConfig.location` | **Omitted** (hello-substrate / fortigate). Default: `gs://ate-snapshots/kagent/aws-budget` |
+| atelet backend | Chosen at **atelet startup** | Live Viper: `ATE_STORAGE_BACKEND=s3` → rustfs `:9000`, bucket `ate-snapshots` |
 
-kagent 0.10.0-rc2 will **reject** `s3://…` on `snapshotsConfig.location`
-(API: *“Substrate currently expects a gs:// location”*, pattern `^gs://`).
-See [snapshots-gcs.md](snapshots-gcs.md) for how that interacts with rustfs
-and with GCS HMAC / `https://storage.googleapis.com`.
+`gs://` is a prefix only. Bytes live on rustfs. Do **not** set
+`gs://viper-kagent-ate-snapshots` while atelet still talks to rustfs.
+kagent 0.10.0-rc2 will **reject** `s3://…` on the CRD field. Path A
+(native GCS) and Path B (HMAC) are future cluster-wide work — see
+[snapshots-gcs.md](snapshots-gcs.md).
 
 ## MCP tools (read-only first)
 

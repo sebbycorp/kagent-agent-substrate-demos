@@ -15,26 +15,27 @@ K() { docker exec k3s-viper kubectl "$@"; }
 "$DEMO/scripts/00-prereqs.sh"
 ```
 
-## GCP project + snapshot bucket
+## Snapshots today (rustfs) + reserved GCS (do not wire)
+
+Today atelet writes to rustfs (`ATE_STORAGE_BACKEND=s3`, bucket
+`ate-snapshots`). `sandboxagent.yaml` **omits** `snapshotsConfig`.
+Expected ActorTemplate location: `gs://ate-snapshots/kagent/aws-budget`.
+
+Project **viper-kagent** (89434469276) and
+**gs://viper-kagent-ate-snapshots** already exist and are reserved for
+a later cluster-wide atelet cutover. Do not create another. Do not set
+that URI on this SandboxAgent yet.
 
 ```bash
-# prints gcloud commands by default. APPLY=1 actually creates.
-export GCP_PROJECT_ID="ate-snapshots-$(whoami)-$(date +%Y%m%d)"
-export GCP_BILLING_ACCOUNT="XXXXXX-XXXXXX-XXXXXX"   # from: gcloud billing accounts list
-export GCS_BUCKET="ate-snapshots-${GCP_PROJECT_ID}"
-export GCS_LOCATION="us-east1"
+# verify reserved GCS; create is skipped. Does not change the agent YAML.
 "$DEMO/scripts/01-gcp-snapshot-bucket.sh"
-# APPLY=1 "$DEMO/scripts/01-gcp-snapshot-bucket.sh"
 ```
 
-Inspect what kagent will write (must stay `gs://`):
-
 ```bash
-# after the SandboxAgent exists
-K -n kagent get sandboxagent aws-budget -o yaml | sed -n '/snapshotsConfig/,+6p'
+# after the SandboxAgent exists — expect gs://ate-snapshots/kagent/aws-budget
 K -n kagent get actortemplate aws-budget -o jsonpath='{.spec.snapshotsConfig.location}{"\n"}{.status.goldenSnapshot}{"\n"}'
-K -n ate-system get pods
-# look for rustfs vs only atelet/ate-api/valkey
+K -n ate-system get pods,svc
+# rustfs should be present; atelet env ATE_STORAGE_BACKEND=s3
 ```
 
 ## AWS IAM (keys never echo)
@@ -78,10 +79,11 @@ docker save aws-budget-mcp:dev | docker exec -i k3s-viper ctr images import -
 
 ## Apply agent
 
+Host kustomize piped into the node. The k3s container cannot see host
+paths — do **not** `docker exec … kubectl apply -k <host-path>`.
+
 ```bash
-K apply -k "$DEMO/k8s"
-# if kustomize is only on the host, render then apply:
-kubectl kustomize "$DEMO/k8s" | docker exec -i k3s-viper kubectl apply -f -
+kubectl kustomize aws-sandbox-agent/k8s | docker exec -i k3s-viper kubectl apply -f -
 ```
 
 ## Wait / chat checks
@@ -98,6 +100,6 @@ Wait until `SandboxAgent/aws-budget` Ready. First golden snapshot is often 60–
 ## Teardown (optional)
 
 ```bash
-kubectl kustomize "$DEMO/k8s" | docker exec -i k3s-viper kubectl delete -f - --ignore-not-found
-# do not delete the GCP project or AWS user unless you intend to
+kubectl kustomize aws-sandbox-agent/k8s | docker exec -i k3s-viper kubectl delete -f - --ignore-not-found
+# do not delete the existing GCP project (viper-kagent) or AWS user unless you intend to
 ```
