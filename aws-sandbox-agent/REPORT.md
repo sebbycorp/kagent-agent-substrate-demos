@@ -149,11 +149,11 @@ reconstructed):
 
 ## Shots
 
-Live Chromium screenshots and the reconstructed reel live in
+Live Chromium screenshots and the live UI live in
 **[shots/](shots/)**.
 
 | File | What it is |
 |------|------------|
 | [ui-agents-grid.png](shots/ui-agents-grid.png) | Live kagent UI, 2026-08-16. Three SandboxAgent cards, all OpenAI gpt-5.5. |
 | [ui-chat-session.png](shots/ui-chat-session.png) | Live kagent UI, 2026-08-16. Spend/capacity turn: 10/10 tools, MTD $0.67, budget $4.13 / $100, 0 EC2/ASG/RDS/EBS. |
-| [aws-budget-kagent-demo.gif](shots/aws-budget-kagent-demo.gif) | **Reconstructed reel** of that same live A2A turn — not a Chromium pixel capture of the SPA. ([mp4](shots/aws-budget-kagent-demo.mp4)) |
+| [ui-chat-session.png](shots/ui-chat-session.png) | **Reconstructed reel** of that same live A2A turn — not a Chromium pixel capture of the SPA. ([mp4](shots/ui-chat-session.png)) |
