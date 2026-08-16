@@ -252,6 +252,7 @@ kubectl kustomize aws-sandbox-agent/k8s | docker exec -i k3s-viper kubectl apply
 externalsecret.external-secrets.io/aws-budget-mcp created
 deployment.apps/aws-budget-mcp created
 service/aws-budget-mcp created
+configmap/aws-budget-skills created
 remotemcpserver.kagent.dev/aws-budget-mcp created
 sandboxagent.kagent.dev/aws-budget created
 ```
@@ -345,6 +346,12 @@ Clicks-only checklist: [docs/ui-runbook.md](docs/ui-runbook.md).
 
 ## Skills (in this repo)
 
-All agent skills live under [skills/](skills/SKILL.md). The system
-message points at them. Do not add a second skill pack in another
-repository for this demo.
+All agent skills live under [skills/](skills/SKILL.md). kagent
+**0.10.0-rc2** rejects `spec.skills` on `SandboxAgent` (same as
+`fortigate` / `hello-substrate` on k8s-viper — those agents inline
+instructions in `systemMessage`). There is no skill-mount into the
+gVisor session. ConfigMap `aws-budget-skills` holds the same text;
+`declarative.promptTemplate` includes it in `systemMessage` so the
+model actually sees it. Keep `skills/` in sync with
+`k8s/skills-configmap.yaml`. Do not add a second skill pack in
+another repository for this demo.

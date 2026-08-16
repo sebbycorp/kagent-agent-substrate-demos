@@ -5,4 +5,5 @@ resources:
   - external-secret.yaml
   - mcp-deploy.yaml
   - remotemcpserver.yaml
+  - skills-configmap.yaml
   - sandboxagent.yaml

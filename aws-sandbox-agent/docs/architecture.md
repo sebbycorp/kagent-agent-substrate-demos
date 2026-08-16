@@ -56,6 +56,19 @@ flowchart TB
   pool --> atelet --> gcs
 ```
 
+## Skills (systemMessage, not a mount)
+
+kagent 0.10.0-rc2 `SandboxAgentSpec` **rejects** `spec.skills`
+(`!has(self.skills)`). There is no CRD field that mounts
+`skills/*.md` into the gVisor actor. Live Viper
+(`platform/kagent-ai/fortigate-agent.yaml`, `hello-substrate.yaml`)
+puts instructions in `declarative.systemMessage`.
+
+This demo keeps the markdown under `skills/` and applies the same
+text as ConfigMap `aws-budget-skills`. `declarative.promptTemplate.dataSources`
+(a published rc2 field) includes those keys into `systemMessage`. The
+actor sees the skill text in the prompt, not as files under `/skills`.
+
 ## Why this is not a plain `Agent` Deployment
 
 A regular kagent `Agent` is a long-running pod. `SandboxAgent` is a

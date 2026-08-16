@@ -52,13 +52,13 @@ aws-sandbox-agent/
     ui-runbook.md           # kagent UI + GCP + AWS console clicks
     snapshots-gcs.md        # existing viper-kagent bucket, gs:// vs HMAC/S3
     security.md             # least-privilege IAM, Vault/ESO, gVisor
-  skills/                   # ALL agent skills live here
+  skills/                   # source for ConfigMap aws-budget-skills (not a gVisor mount)
     SKILL.md
     budget.md
     capacity.md
     executive-brief.md
   images/aws-budget-mcp/    # FastMCP image (Viper fortigate-mcp shape)
-  k8s/                      # SandboxAgent + MCP + ExternalSecret
+  k8s/                      # SandboxAgent + MCP + ExternalSecret + skills ConfigMap
   scripts/                  # prereqs, GCS bucket, image import, AWS smoke
 ```
 

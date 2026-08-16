@@ -82,10 +82,11 @@ docker save aws-budget-mcp:dev | docker exec -i k3s-viper ctr images import -
 
 ## Apply agent
 
+Host kustomize piped into the node. The k3s container cannot see host
+paths — do **not** `docker exec … kubectl apply -k <host-path>`.
+
 ```bash
-K apply -k "$DEMO/k8s"
-# if kustomize is only on the host, render then apply:
-kubectl kustomize "$DEMO/k8s" | docker exec -i k3s-viper kubectl apply -f -
+kubectl kustomize aws-sandbox-agent/k8s | docker exec -i k3s-viper kubectl apply -f -
 ```
 
 ## Wait / chat checks
@@ -102,6 +103,6 @@ Wait until `SandboxAgent/aws-budget` Ready. First golden snapshot is often 60–
 ## Teardown (optional)
 
 ```bash
-kubectl kustomize "$DEMO/k8s" | docker exec -i k3s-viper kubectl delete -f - --ignore-not-found
+kubectl kustomize aws-sandbox-agent/k8s | docker exec -i k3s-viper kubectl delete -f - --ignore-not-found
 # do not delete the existing GCP project (viper-kagent) or AWS user unless you intend to
 ```

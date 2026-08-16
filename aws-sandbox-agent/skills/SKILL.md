@@ -1,8 +1,17 @@
 # Skills index — `aws-budget`
 
-All agent skills for this demo live in this folder. The `SandboxAgent`
-system message tells the model to follow them. Do not invent extra skills
-in chat or in a second repo.
+All agent skills for this demo live in this folder. They are **not**
+mounted into the gVisor actor.
+
+kagent **0.10.0-rc2** `SandboxAgentSpec` CEL-rejects `spec.skills`
+(*"spec.skills is not supported for sandbox agents"*). The live Viper
+agents (`fortigate`, `hello-substrate`) put instructions in
+`declarative.systemMessage`. This demo does the same: ConfigMap
+`aws-budget-skills` (`k8s/skills-configmap.yaml`) holds these files,
+and `declarative.promptTemplate` includes them into `systemMessage`.
+Repo paths such as `aws-sandbox-agent/skills/` are not visible inside
+the actor. Keep this folder in sync with that ConfigMap. Do not invent
+extra skills in chat or in a second repo.
 
 | Skill | File | When to use |
 |-------|------|-------------|

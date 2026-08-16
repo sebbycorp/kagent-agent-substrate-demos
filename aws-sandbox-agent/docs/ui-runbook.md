@@ -77,7 +77,8 @@ not native GCS:
 
 1. **CLI**: prereqs, `01-gcp-snapshot-bucket.sh` (skip-create on the
    existing `viper-kagent` bucket), Vault `kv put` with the secret
-   redacted, `docker build` + `ctr import`, `kubectl apply -k`,
+   redacted, `docker build` + `ctr import`, host `kubectl kustomize`
+   piped into `docker exec -i k3s-viper kubectl apply -f -`,
    `get sandboxagent` until Ready.
 2. **UI**: kagent Agents list → `aws-budget` Ready → the spend/capacity
    question → tool calls → answer.

@@ -1,0 +1,95 @@
+# Skill markdown included into SandboxAgent.spec.declarative.systemMessage
+# via promptTemplate (kagent 0.10.0-rc2). spec.skills is rejected on
+# SandboxAgent. Keep keys in sync with ../skills/*.md.
+# Do not put secrets here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-budget-skills
+  namespace: kagent
+data:
+  budget.md: |
+    # Skill: budget
+
+    Help an executive understand **what we are spending in us-east-2** and
+    whether we are on track versus AWS Budgets.
+
+    ## Do this
+
+    1. Call `aws_whoami` first if identity is not already known this turn.
+       Confirm the account id you will attribute spend to.
+    2. Call `aws_cost_month` for month-to-date unblended cost, **us-east-2 filter**.
+    3. Call `aws_cost_by_service` for the same period. Name the top services.
+    4. Call `aws_budgets` and compare actual vs limit. Say “no budgets configured”
+       if the list is empty — do not invent a $X limit.
+    5. Quote the **time window** Cost Explorer returned (start/end). Month-to-date
+       is not “the invoice.”
+
+    ## Do not
+
+    - Guess last month’s bill from memory or from a previous chat.
+    - Treat Cost Explorer forecasts as commitments.
+    - Print billing account credentials or the IAM access key id in full.
+      Account id (12 digits) is fine.
+
+    ## How to say it
+
+    Lead with one sentence: “us-east-2 month-to-date is $A (as of DATE), top
+    service is B at $C, budget D is E% used.” Then the table. If CE is denied,
+    say the IAM action that failed (`ce:GetCostAndUsage`) instead of fabricating $0.
+  capacity.md: |
+    # Skill: capacity
+
+    Help an executive understand **whether us-east-2 compute is tight** —
+    running instances, ASGs, RDS, EBS, and service quotas.
+
+    ## Do this
+
+    1. `aws_ec2_capacity` — instance ids, types, AZs, states. Summarize
+       running vs stopped. Do not list every tag unless asked.
+    2. `aws_asg` — desired / min / max vs in-service. Flag any ASG at max.
+    3. `aws_rds` — engine, class, Multi-AZ, status.
+    4. `aws_ebs_summary` — count and GiB by volume type; unattached volumes.
+    5. `aws_service_quotas` — key compute quotas (On-Demand vCPU, etc.).
+       Compare **used vs value**. If a quota API is not enabled, say so.
+    6. `aws_rightsizing_hints` — Cost Explorer rightsizing or Compute Optimizer.
+       If the account is not enrolled, **degrade gracefully** (say “not available”)
+       instead of inventing idle CPU.
+
+    ## Do not
+
+    - Recommend terminate / stop / scale-in unless the human asked, and then
+      still **ask before any write** (this agent has no terminate tool).
+    - Treat a single AZ outage story as current state without tools.
+    - Confuse “quota remaining” with “we should buy more.”
+
+    ## How to say it
+
+    “N instances running in us-east-2 (types…), M ASGs at max, RDS: …,
+    On-Demand standard vCPU quota used/limit. Rightsizing: … or not enrolled.”
+  executive-brief.md: |
+    # Skill: executive brief
+
+    One short brief an exec can read in **30 seconds**. Prefer the composed
+    tool `aws_executive_brief`, which must itself call the live AWS APIs.
+    If that tool errors, fall back to the budget + capacity tools and compose
+    the same shape yourself — still no invented numbers.
+
+    ## Shape
+
+    ```text
+    Account: <id>  Region: us-east-2  As of: <UTC date>
+    Spend MTD: $<n>  Top service: <name> $<n>
+    Budgets: <name> actual/limit or “none configured”
+    Capacity: <running instances>, <ASGs at max>, <RDS count>
+    Quotas: <tightest quota used/limit> or “quota API unavailable”
+    Rightsizing: <one line> or “not enrolled / API denied”
+    Risk: <one sentence, or “none from these reads”>
+    ```
+
+    ## Rules
+
+    - Four to eight lines. No essay.
+    - Every dollar and count comes from a tool result in this turn.
+    - If something failed, keep the line and write `unavailable (<reason>)`.
+    - Never attach keys, ARNs of access keys, or Vault paths with tokens.
