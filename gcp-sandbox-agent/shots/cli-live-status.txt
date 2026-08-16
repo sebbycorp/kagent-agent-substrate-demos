@@ -1,0 +1,14 @@
+NAME                                      READY   ACCEPTED
+sandboxagent.kagent.dev/gcp-budget        True    True
+
+NAME                                            PROTOCOL          URL                                     ACCEPTED
+remotemcpserver.kagent.dev/gcp-budget-mcp       STREAMABLE_HTTP   http://gcp-budget-mcp.kagent:8084/mcp   True
+
+NAME                                READY   STATUS    RESTARTS   AGE
+pod/gcp-budget-mcp-5664dfb8f7-pwlwv 1/1     Running   0          4m41s
+
+NAME                                           CLASS
+actortemplate.ate.dev/gcp-budget-82cc62c613737d64   gvisor
+location: gs://ate-snapshots/kagent/gcp-budget
+goldenSnapshot: gs://ate-snapshots/kagent/gcp-budget/5edafe3c-5cec-4d67-92bd-29c29ab75444/2026-08-16T17:55:34Z-XIKENZRG7IHYGCONXJZFBBFY2R
+phase: Ready
