@@ -1,0 +1,18 @@
+NAME READY ACCEPTED
+sandboxagent.kagent.dev/f5-bigip True True
+
+NAME PROTOCOL URL ACCEPTED
+remotemcpserver.kagent.dev/f5-bigip-mcp STREAMABLE_HTTP http://f5-bigip-mcp.kagent:8084/mcp True
+
+NAME STORETYPE STORE REFRESH INTERVAL STATUS READY
+externalsecret.external-secrets.io/f5-bigip-mcp ClusterSecretStore vault-backend 1h SecretSynced True
+
+NAME READY STATUS RESTARTS AGE
+pod/f5-bigip-mcp-7f75b47b78-mdblb 1/1 Running 0 17m
+image: f5-bigip-mcp:dev
+
+NAME CLASS
+actortemplate.ate.dev/f5-bigip-3adfcbf7c448a873 gvisor
+location: gs://ate-snapshots/kagent/f5-bigip
+goldenSnapshot: gs://ate-snapshots/kagent/f5-bigip/2b9f5b6a-930d-471c-b679-22f31895f8c9/2026-08-17T14:32:42Z-23PD7HXZ5JL7OO7RNHUWZ5YOWS
+phase: Ready
