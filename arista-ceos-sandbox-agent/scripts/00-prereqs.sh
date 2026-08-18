@@ -24,22 +24,20 @@ fi
 if clab="$(clab_bin 2>/dev/null)"; then
   echo "ok   ${clab}  $(${clab} version 2>/dev/null | head -n1 || ${clab} version short 2>/dev/null || true)"
 else
-  echo "MISS containerlab (install from https://containerlab.dev)"
+  echo "MISS containerlab (not installed on Viper yet — install from https://containerlab.dev before deploy)"
   ok=1
 fi
 
 echo
-echo "== image pin (name only; image is not in git) =="
+echo "== image pin (local import only; not in git; no Hub pull) =="
 echo "info CEOS_IMAGE=${CEOS_IMAGE}"
-echo "info Docker Hub also publishes sebbycorp/ceosimage:4.33.4M (override via CEOS_IMAGE)"
-echo "info Hub tags inspected 2026-08-18 were arm64 — Viper must match or already have the image"
-if docker image inspect "${CEOS_IMAGE}" >/dev/null 2>&1; then
+echo "info official import: docker import cEOS64-lab-4.33.9M.tar.xz ceos:4.33.9M"
+echo "info host target: Viper 172.16.10.135 Ubuntu 24.04 Docker 29.4.0 amd64"
+if require_local_ceos_image; then
   arch="$(docker image inspect -f '{{.Architecture}}' "${CEOS_IMAGE}" 2>/dev/null || true)"
   echo "ok   local image present (architecture ${arch:-unknown})"
 else
-  echo "info image not present locally; 01-deploy.sh will docker pull ${CEOS_IMAGE}"
-  echo "info cEOS is Arista-licensed — only pull if you have the right to use it"
-  warn=1
+  ok=1
 fi
 
 echo
@@ -48,7 +46,7 @@ if [[ -f "${DEMO_ROOT}/.env" ]]; then
   echo "ok   .env present (values not printed)"
 else
   echo "info no .env — scripts use Containerlab/cEOS lab defaults (see .env.example)"
-  echo "info future kagent deployment reads Vault secret/platform/arista-ceos"
+  echo "info future kagent deployment reads Vault secret/platform/arista-ceos keys username, password, hosts_json"
   warn=1
 fi
 echo "info CEOS_LAB_USER is set (value not printed)"

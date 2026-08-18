@@ -5,10 +5,10 @@ identity, BGP sessions, LLDP, interface state.
 
 ## Do this
 
-1. Call `ceos_whoami` on each node if identity is not already known
+1. Call `arista_whoami` on each node if identity is not already known
    this turn. Confirm hostname and EOS version from eAPI, not from
    this markdown.
-2. Call `ceos_bgp_summary`. Expected neighbors (design only — still
+2. Call `arista_bgp_summary`. Expected neighbors (design only — still
    read state from the tool):
 
    | Node | Neighbor | Remote AS |
@@ -21,9 +21,9 @@ identity, BGP sessions, LLDP, interface state.
    Report `peerState` as returned. If a peer is missing or not
    Established, say that. Do not write Established from the table
    above.
-3. Call `ceos_lldp`. Design links: spine1 Ethernet1↔leaf1 Ethernet1,
+3. Call `arista_lldp`. Design links: spine1 Ethernet1↔leaf1 Ethernet1,
    spine1 Ethernet2↔leaf2 Ethernet1.
-4. Call `ceos_interfaces` if someone asks why a session is down
+4. Call `arista_interfaces` if someone asks why a session is down
    (protocol/status, IPv4). Do not dump Management0 secrets.
 
 ## Do not

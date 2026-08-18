@@ -14,11 +14,8 @@ render_lab
 
 echo
 echo "== image =="
-echo "info using ${CEOS_IMAGE} (not stored in this git repo)"
-if ! docker image inspect "${CEOS_IMAGE}" >/dev/null 2>&1; then
-  echo "info pulling ${CEOS_IMAGE} (Arista-licensed cEOS — pull only if permitted)"
-  docker pull "${CEOS_IMAGE}"
-fi
+echo "info using ${CEOS_IMAGE} (local official import; not stored in this git repo)"
+require_local_ceos_image
 
 echo
 echo "== containerlab deploy =="

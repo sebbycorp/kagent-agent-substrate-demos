@@ -32,16 +32,27 @@ No Alpine clients in v1. Loopback pings from EOS are enough to prove
 the underlay without extra links or VRFs.
 
 cEOS is **Arista-licensed**. The image is **not** stored in this git
-repo and is not republished from here. Default pull name:
-`sebbycorp/ceosimage:latest` (override with `CEOS_IMAGE` or the
-`image:` line in [clab/topology.yml](clab/topology.yml)). Docker Hub
-also has `sebbycorp/ceosimage:4.33.4M`. Hub tags inspected 2026-08-18
-were **arm64**.
+repo and is not republished from here. Do **not** `docker pull` from
+Hub. On Viper, import the official tarball to a local name:
+
+```bash
+docker import cEOS64-lab-4.33.9M.tar.xz ceos:4.33.9M
+```
+
+Default image in [clab/topology.yml](clab/topology.yml):
+**`ceos:4.33.9M`** (`linux/amd64`). Override with `CEOS_IMAGE` or the
+`image:` line (local name only). If that image is missing, deploy
+**fails** and tells you to import — it will not pull.
+
+Host for this lab: Viper **`172.16.10.135`**, Ubuntu **24.04**,
+Docker **29.4.0**, **amd64**. Containerlab is **not installed** on
+Viper yet. The lab is **not deployed**. The agent is **not live**.
 
 ## Architecture
 
-v1 (this PR): Containerlab on Viper → three `arista_ceos` nodes →
-eAPI/SSH/LLDP/eBGP on the management and fabric links.
+v1 (this folder): Containerlab on Viper → three `arista_ceos` nodes →
+eAPI/SSH/LLDP/eBGP on the management and fabric links. Containerlab
+is not on Viper yet, so this path has not been run.
 
 ```mermaid
 flowchart TB
@@ -85,9 +96,12 @@ in this v1.
 | leaf1 | 65101 | 10.255.0.11/32 | Ethernet1 `10.0.1.1/31` ↔ spine1 |
 | leaf2 | 65102 | 10.255.0.12/32 | Ethernet1 `10.0.2.1/31` ↔ spine1 |
 
-Management0 IPs are **not** hardcoded. Containerlab/Docker assign them.
+Planned management pool: **`172.20.20.0/24`** (`mgmt.ipv4-subnet` in
+the topology). Per-node Management0 IPs are **not** hardcoded.
 Scripts and a future MCP should use `docker inspect`, `containerlab
 inspect`, or Docker DNS names such as `clab-arista-ceos-spine1`.
+Vault (later) stores those discovered hosts in `hosts_json`, not a
+single `host` key.
 
 ## Pins (do not bump the kagent pair)
 
@@ -97,8 +111,10 @@ inspect`, or Docker DNS names such as `clab-arista-ceos-spine1`.
 | Agent Substrate Helm + CRDs | `0.0.9` (future agent; not applied here) |
 | Worker image | `ghcr.io/kagent-dev/substrate/ateom-gvisor:v0.0.9` |
 | Pattern (later) | Go Declarative `SandboxAgent` + FastMCP + `RemoteMCPServer` + ExternalSecret |
-| Containerlab kind | `arista_ceos` |
-| Image (default) | `sebbycorp/ceosimage:latest` |
+| Containerlab kind | `arista_ceos` (binary **not** on Viper yet) |
+| Image (default) | `ceos:4.33.9M` via `docker import` — no Hub pull |
+| Image arch | `linux/amd64` (Viper is amd64) |
+| Mgmt subnet (planned) | `172.20.20.0/24` — no hardcoded Ma0 |
 | Underlay | eBGP IPv4, no MPLS |
 
 rc2 always writes `ActorTemplate` with `spec.pauseImage` and
@@ -131,15 +147,18 @@ arista-ceos-sandbox-agent/
 
 ## Honest limits
 
-- **Build/deploy pending.** Verify has not been run against Viper in
-  this change. Do not copy imagined `show ip bgp summary` output.
-- cEOS is Arista-licensed. This repo does not vendor the image and
-  does not include Docker Hub credentials.
+- **Build/deploy pending.** Containerlab is not on Viper yet. The lab
+  is not deployed. The agent is not live. Do not copy imagined
+  `show ip bgp summary` output.
+- cEOS is Arista-licensed. This repo does not vendor the tarball.
+  Scripts never `docker pull`. Missing `ceos:4.33.9M` is a hard fail
+  with an import hint.
 - Custom startup-config replaces Containerlab’s generated
   `admin`/`admin` user, so deploy **renders** AAA from `.env` (or the
   documented Containerlab default) into gitignored `clab/generated/`.
-- Future kagent must use Vault `secret/platform/arista-ceos`, not a
-  password baked into a ConfigMap.
+- Future kagent must use Vault `secret/platform/arista-ceos` keys
+  `username`, `password`, `hosts_json` — not a password in a ConfigMap
+  and not a single `host` key.
 - No write tools are specified. The intended agent is read-only.
 - No Linux clients in v1.
 - kagent UI `http://172.16.10.135:30500/` is **LAN-only** and is not

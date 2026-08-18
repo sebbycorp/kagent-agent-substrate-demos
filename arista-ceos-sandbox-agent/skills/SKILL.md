@@ -35,11 +35,12 @@ invent extra skills in chat or in a second repo.
 
 ## Intended tool map (not deployed)
 
-These names are the contract for a future FastMCP. They do not exist
-on Viper today. Do not claim a chat used them.
+These `arista_*` names match the intended k8s-viper MCP. They do not
+exist on Viper today (agent is not live). Do not claim a chat used
+them.
 
 | Skill | Intended tools |
 |-------|----------------|
-| Fabric | `ceos_whoami`, `ceos_bgp_summary`, `ceos_lldp`, `ceos_interfaces` |
-| Routing | `ceos_routes`, `ceos_ping` |
+| Fabric | `arista_whoami`, `arista_bgp_summary`, `arista_lldp`, `arista_interfaces` |
+| Routing | `arista_routes`, `arista_ping` |
 | Executive brief | compose from the above (still must call tools) |

@@ -29,12 +29,14 @@ elsewhere and recorded here with dates.
 
 | Pin | Value | Live? |
 |-----|--------|-------|
-| Containerlab kind | `arista_ceos` | _not yet run_ |
-| Image | `sebbycorp/ceosimage:latest` unless `CEOS_IMAGE` was set | _not yet run_ |
-| Image architecture | arm64 on Docker Hub as of 2026-08-18 | _not yet run_ on Viper |
+| Host | Viper `172.16.10.135` · Ubuntu 24.04 · Docker 29.4.0 · amd64 | _not yet run_ |
+| Containerlab | `arista_ceos` kind; binary **not installed** on Viper yet | _not yet run_ |
+| Image | local `ceos:4.33.9M` from `docker import cEOS64-lab-4.33.9M.tar.xz` (no Hub pull) | _not yet run_ |
+| Image architecture | `linux/amd64` | _not yet run_ |
+| Mgmt subnet (planned) | `172.20.20.0/24` — no hardcoded Ma0 | _not yet run_ |
 | Underlay | eBGP IPv4, no MPLS | _not yet run_ |
-| kagent OSS | 0.10.0-rc2 | not in this v1 |
-| Agent Substrate | 0.0.9 | not in this v1 |
+| kagent OSS | 0.10.0-rc2 | not in this v1 (agent not live) |
+| Agent Substrate | 0.0.9 | not in this v1 (agent not live) |
 
 No secrets in git. Versions were not bumped.
 
@@ -45,7 +47,7 @@ No secrets in git. Versions were not bumped.
 | | |
 |--|--|
 | Path (later) | `secret/platform/arista-ceos` |
-| Keys (later) | `host` / `username` / `password` (or equivalent) |
+| Keys (later) | `username`, `password`, `hosts_json` (not `host`) |
 | This run | Lab AAA rendered on the Containerlab host from `.env` or Containerlab defaults. **Values are not recorded here.** |
 
 ---

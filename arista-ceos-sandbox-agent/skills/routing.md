@@ -5,8 +5,8 @@ and whether they ping.
 
 ## Do this
 
-1. Call `ceos_whoami` if the node set is unclear.
-2. Call `ceos_routes` (or equivalent `show ip route`) on the node
+1. Call `arista_whoami` if the node set is unclear.
+2. Call `arista_routes` (or equivalent `show ip route`) on the node
    the human named. Loopbacks in the design:
 
    | Prefix | Origin |
@@ -18,7 +18,7 @@ and whether they ping.
    Say whether each prefix is **connected** or **BGP** on that node,
    using the tool output. A missing prefix is “not in RIB”, not
    “probably there.”
-3. If asked “can A reach B?”, call `ceos_ping` (or refuse if the
+3. If asked “can A reach B?”, call `arista_ping` (or refuse if the
    tool is missing) from the source node to the destination
    loopback. Quote packets received / loss from the result.
 4. Point-to-point `/31`s (`10.0.1.0/31`, `10.0.2.0/31`) are the

@@ -17,11 +17,12 @@ TOPO_SRC="${CLAB_DIR}/topology.yml"
 TOPO_RUN="${GEN_DIR}/topology.yml"
 LAB_NAME="arista-ceos"
 NODES=(spine1 leaf1 leaf2)
-DEFAULT_CEOS_IMAGE="sebbycorp/ceosimage:latest"
+DEFAULT_CEOS_IMAGE="ceos:4.33.9M"
 
 # Containerlab/cEOS published defaults (https://containerlab.dev/manual/kinds/ceos/).
 # Used only when .env does not set CEOS_LAB_USER / CEOS_LAB_PASSWORD.
-# Not a production secret. Future kagent reads Vault secret/platform/arista-ceos.
+# Not a production secret. Future kagent reads Vault
+# secret/platform/arista-ceos keys username, password, hosts_json.
 _CLAB_DEFAULT_USER="admin"
 _CLAB_DEFAULT_PASSWORD="admin"
 
@@ -60,7 +61,23 @@ clab_bin() {
     echo clab
     return 0
   fi
-  echo "MISS containerlab (or clab)" >&2
+  echo "MISS containerlab (or clab) — not installed on Viper yet; install from https://containerlab.dev before deploy" >&2
+  return 1
+}
+
+# Local official import only. Never docker pull.
+require_local_ceos_image() {
+  if docker image inspect "${CEOS_IMAGE}" >/dev/null 2>&1; then
+    return 0
+  fi
+  cat >&2 <<EOF
+MISS local image ${CEOS_IMAGE}
+Do not docker pull. Import the official Arista tarball on Viper (amd64):
+
+  docker import cEOS64-lab-4.33.9M.tar.xz ceos:4.33.9M
+
+Then re-run. cEOS is Arista-licensed and is not stored in this git repo.
+EOF
   return 1
 }
 
