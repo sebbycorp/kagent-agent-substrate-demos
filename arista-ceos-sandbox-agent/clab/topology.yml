@@ -1,0 +1,34 @@
+# 3-node Arista cEOS fabric for Sebastian's Viper (Containerlab).
+# Image default: sebbycorp/ceosimage:latest (Docker Hub; arm64 as of 2026-08-18).
+# Override without editing this file:
+#   export CEOS_IMAGE=sebbycorp/ceosimage:4.33.4M
+#   ./scripts/01-deploy.sh
+# Or change kinds.arista_ceos.image below.
+#
+# Do not store or republish the cEOS image in git. cEOS is Arista-licensed.
+# Deploy via scripts/01-deploy.sh (renders lab-only AAA into generated/).
+
+name: arista-ceos
+
+mgmt:
+  network: arista-ceos
+  # Subnet and node mgmt IPs are assigned by Docker/Containerlab.
+  # Do not hardcode Management0 addresses; use node names / inspect.
+
+topology:
+  kinds:
+    arista_ceos:
+      image: sebbycorp/ceosimage:latest
+  nodes:
+    spine1:
+      kind: arista_ceos
+      startup-config: generated/spine1.cfg
+    leaf1:
+      kind: arista_ceos
+      startup-config: generated/leaf1.cfg
+    leaf2:
+      kind: arista_ceos
+      startup-config: generated/leaf2.cfg
+  links:
+    - endpoints: ["spine1:eth1", "leaf1:eth1"]
+    - endpoints: ["spine1:eth2", "leaf2:eth1"]
