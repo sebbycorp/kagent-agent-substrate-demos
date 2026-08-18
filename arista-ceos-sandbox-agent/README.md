@@ -2,24 +2,37 @@
 
 A **3-node Arista cEOS Containerlab** fabric (`spine1`, `leaf1`, `leaf2`)
 for Sebastian’s Viper. eBGP underlay only in v1 (no MPLS, no EVPN yet).
-A gVisor `SandboxAgent` + FastMCP path is the intended next step — it
-is **not deployed** in this folder.
+A gVisor `SandboxAgent` + FastMCP path is **live** on Viper
+(`SandboxAgent/arista-ceos`, kagent UI `:30500`).
 
 **The fabric is live on Viper `172.16.10.135` (2026-08-17 evening ET).**
 Live inspect, EOS version, and BGP are in **[REPORT.md](REPORT.md)**.
-There are **no** Chromium / kagent screenshots yet — do not treat the
-diagrams below as a UI capture.
+Live CLI and kagent screenshots are below. The mermaid diagrams are
+topology only, not UI captures.
 
 How-to (including the inotify first-boot failure): **[JOURNEY.md](JOURNEY.md)**.
 
 ## Live screenshots
 
-**None yet.** `shots/` has no PNG/GIF. Live Chromium shots will
-follow when captured. See [shots/NOTES.md](shots/NOTES.md).
+Real captures from Viper on **2026-08-17**. Not reconstructed, not AI.
 
-Do not add reconstructed frames, stock photos, or AI-drawn “sample”
-UI. When kagent chat exists, put real Chromium / CLI artifacts in
-[shots/](shots/) only.
+**containerlab inspect** — three `ceos:4.33.9M` nodes on `172.20.20.0/24`
+
+![containerlab inspect](shots/clab-inspect.png)
+
+**spine1 `show version`** — EOS `4.33.9M-49063934.4339M` x86_64
+
+![spine1 show version](shots/spine1-show-version.png)
+
+**spine1 `show ip bgp summary`** — both leaves Established
+
+![spine1 BGP summary](shots/spine1-bgp-summary.png)
+
+**kagent UI** — `arista-ceos` answering “What is the BGP summary on spine1?”
+
+![kagent arista-ceos BGP chat](shots/kagent-arista-bgp-chat.png)
+
+See [shots/NOTES.md](shots/NOTES.md) for provenance.
 
 ## Why this lab exists
 
@@ -52,7 +65,7 @@ Host for this lab: Viper **`172.16.10.135`**, Ubuntu **24.04**,
 Docker **29.4.0**, **amd64**. Containerlab **0.78.2** (commit
 `8e6596157`, 2026-08-13) is installed at
 `/usr/local/bin/containerlab`. The 3-node lab is **running**. The
-kagent `SandboxAgent` is **not** applied.
+kagent `SandboxAgent/arista-ceos` is **Ready** (MCP `arista-ceos-mcp:dev`).
 
 ## Architecture
 
@@ -91,8 +104,7 @@ flowchart LR
 
 Chat → kagent UI `:30500` → A2A sandboxes → gVisor actor →
 `RemoteMCPServer` → MCP → cEOS **eAPI**. Vault / ESO sit on the side
-(lab AAA never in the actor). That MCP and `SandboxAgent` are **not**
-in this v1.
+(lab AAA never in the actor). That MCP and `SandboxAgent` are **live** as of 2026-08-17.
 
 ## Addressing (fabric; mgmt IPs from live inspect)
 
@@ -134,14 +146,14 @@ this demo grows a `SandboxAgent`.
 
 ```text
 arista-ceos-sandbox-agent/
-  README.md                 # visual landing (this file) — shots still empty
+  README.md                 # visual landing (this file) — live shots below
   JOURNEY.md                # reproducible Containerlab setup + live inotify note
   REPORT.md                 # LIVE 2026-08-17 Viper record
   .env.example              # image + lab-only AAA names (copy to .env)
   clab/                     # topology + startup-config templates
   scripts/                  # prereqs, deploy, verify, destroy
   skills/                   # intended read-only Arista operations
-  shots/                    # NOTES only until a real Chromium capture
+  shots/                    # live CLI + kagent PNG captures (2026-08-17)
 ```
 
 ## Docs
@@ -156,7 +168,7 @@ arista-ceos-sandbox-agent/
 ## Honest limits
 
 - The 3-node fabric is **live** on Viper. The kagent `SandboxAgent`
-  is **not** applied. Do not invent kagent chat output.
+  is **Ready**. The kagent chat shot above is a real capture.
 - cEOS is Arista-licensed. This repo does not vendor the tarball.
   Scripts never `docker pull`. Missing `ceos:4.33.9M` is a hard fail
   with an import hint. This run did not pull `sebbycorp/ceosimage`.
@@ -168,8 +180,7 @@ arista-ceos-sandbox-agent/
   and not a single `host` key.
 - No write tools are specified. The intended agent is read-only.
 - No Linux clients in v1.
-- kagent UI `http://172.16.10.135:30500/` is **LAN-only** and is not
-  part of this v1 deploy.
+- kagent UI `http://172.16.10.135:30500/` is **LAN-only**.
 - Never commit `.env`, Vault tokens, or eAPI password **values**.
 - First boot on this host died on inotify / Too many open files.
   The sysctl fix is in [JOURNEY.md](JOURNEY.md).
