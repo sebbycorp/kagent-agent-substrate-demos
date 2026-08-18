@@ -1,0 +1,47 @@
+! arista-ceos-sandbox-agent / spine1
+! LAB-ONLY eBGP underlay. Not a production network.
+! Management0 addressing is omitted on purpose — Containerlab/Docker assign it.
+!
+hostname spine1
+!
+! __LAB_AAA__
+!
+aaa authentication login default local
+aaa authorization exec default local
+!
+ip routing
+!
+lldp run
+!
+interface Loopback0
+   description spine1 router-id / advertised loopback
+   ip address 10.255.0.1/32
+!
+interface Ethernet1
+   description p2p to leaf1 eth1
+   no switchport
+   ip address 10.0.1.0/31
+   no shutdown
+!
+interface Ethernet2
+   description p2p to leaf2 eth1
+   no switchport
+   ip address 10.0.2.0/31
+   no shutdown
+!
+management api http-commands
+   protocol http
+   no shutdown
+!
+management ssh
+   idle-timeout 120
+!
+router bgp 65000
+   router-id 10.255.0.1
+   neighbor 10.0.1.1 remote-as 65101
+   neighbor 10.0.1.1 description leaf1
+   neighbor 10.0.2.1 remote-as 65102
+   neighbor 10.0.2.1 description leaf2
+   network 10.255.0.1/32
+!
+end
