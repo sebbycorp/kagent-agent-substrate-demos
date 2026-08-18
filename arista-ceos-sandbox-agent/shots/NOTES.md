@@ -1,7 +1,28 @@
 # arista-ceos shots
 
-**No PNG/GIF in this directory.** Live Chromium shots will follow
-when captured. Do not invent files to look finished.
+**No PNG/GIF in this directory.** The three live xfce4-terminal
+grabs from Viper (2026-08-17) were attached in chat, but this
+agent workspace received **image descriptions only** — not PNG
+bytes. Do not invent or reconstruct those files. Live Chromium /
+kagent shots will follow when captured. Do not invent files to
+look finished.
+
+## Intended live files (when real bytes are committed)
+
+Provenance for these three, and only these three:
+
+| File | What it is |
+|------|------------|
+| `shots/clab-inspect.png` | `containerlab` inspect of the 3 running `ceos:4.33.9M` nodes |
+| `shots/spine1-show-version.png` | `docker exec` FastCli `show version` on spine1 (`4.33.9M-49063934.4339M`) |
+| `shots/spine1-bgp-summary.png` | `show ip bgp summary` on spine1, both leaves Estab |
+
+**Provenance:** captured **2026-08-17** on Viper via a live
+**xfce4-terminal** SSH session titled `arista-live`. X11 grab of
+that session. **Not** AI-generated, stock, or reconstructed.
+
+Until those exact bytes are in git, README.md / REPORT.md must not
+embed the paths. Real files only.
 
 ## Live-verified in text (2026-08-17 evening ET, Viper)
 
@@ -29,6 +50,7 @@ screenshots:
 
 ## What is accepted
 
+- The three X11 xfce4-terminal SSH grabs named above (2026-08-17, Viper)
 - Real Chromium `--headless=new --screenshot` (or a real interactive
   capture) of a tunneled or LAN kagent UI **after** the agent exists
 - Real CLI dumps (`containerlab inspect`, `./scripts/02-verify.sh`,
