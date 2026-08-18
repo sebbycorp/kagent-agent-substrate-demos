@@ -5,20 +5,21 @@ for Sebastian’s Viper. eBGP underlay only in v1 (no MPLS, no EVPN yet).
 A gVisor `SandboxAgent` + FastMCP path is the intended next step — it
 is **not deployed** in this folder.
 
-**Live screenshots and REPORT.md numbers are pending.** This README is
-the architecture landing. Do not treat the diagrams as a completed
-Viper run. Nothing below is a live BGP table, LLDP dump, or UI capture.
+**The fabric is live on Viper `172.16.10.135` (2026-08-17 evening ET).**
+Live inspect, EOS version, and BGP are in **[REPORT.md](REPORT.md)**.
+There are **no** Chromium / kagent screenshots yet — do not treat the
+diagrams below as a UI capture.
 
-How-to is **[JOURNEY.md](JOURNEY.md)**. The report template (explicitly
-**NOT YET RUN**): **[REPORT.md](REPORT.md)**.
+How-to (including the inotify first-boot failure): **[JOURNEY.md](JOURNEY.md)**.
 
 ## Live screenshots
 
-**Pending until the lab is deployed and verified on Viper.**
+**None yet.** `shots/` has no PNG/GIF. Live Chromium shots will
+follow when captured. See [shots/NOTES.md](shots/NOTES.md).
 
 Do not add reconstructed frames, stock photos, or AI-drawn “sample”
-UI. When the fabric has been run, put real Chromium / CLI artifacts
-in [shots/](shots/) and follow [shots/NOTES.md](shots/NOTES.md).
+UI. When kagent chat exists, put real Chromium / CLI artifacts in
+[shots/](shots/) only.
 
 ## Why this lab exists
 
@@ -32,27 +33,32 @@ No Alpine clients in v1. Loopback pings from EOS are enough to prove
 the underlay without extra links or VRFs.
 
 cEOS is **Arista-licensed**. The image is **not** stored in this git
-repo and is not republished from here. Do **not** `docker pull` from
-Hub. On Viper, import the official tarball to a local name:
+repo and is not republished from this repo. Do **not** `docker pull`
+from Hub. On Viper the official tarball was imported to a local name
+(this run did **not** pull `sebbycorp/ceosimage`):
 
 ```bash
 docker import cEOS64-lab-4.33.9M.tar.xz ceos:4.33.9M
 ```
 
-Default image in [clab/topology.yml](clab/topology.yml):
-**`ceos:4.33.9M`** (`linux/amd64`). Override with `CEOS_IMAGE` or the
-`image:` line (local name only). If that image is missing, deploy
+Pinned image in [clab/topology.yml](clab/topology.yml):
+**`ceos:4.33.9M`** (`linux/amd64`). Live digest
+`sha256:56fcaed9ef895428e760997eb59ebfca2df661c915f360ae2ba4284439c3bb4f`
+(also tagged `ceos:latest` on Viper). Override with `CEOS_IMAGE` or
+the `image:` line (local name only). If that image is missing, deploy
 **fails** and tells you to import — it will not pull.
 
 Host for this lab: Viper **`172.16.10.135`**, Ubuntu **24.04**,
-Docker **29.4.0**, **amd64**. Containerlab is **not installed** on
-Viper yet. The lab is **not deployed**. The agent is **not live**.
+Docker **29.4.0**, **amd64**. Containerlab **0.78.2** (commit
+`8e6596157`, 2026-08-13) is installed at
+`/usr/local/bin/containerlab`. The 3-node lab is **running**. The
+kagent `SandboxAgent` is **not** applied.
 
 ## Architecture
 
 v1 (this folder): Containerlab on Viper → three `arista_ceos` nodes →
-eAPI/SSH/LLDP/eBGP on the management and fabric links. Containerlab
-is not on Viper yet, so this path has not been run.
+eAPI/SSH/LLDP/eBGP on the management and fabric links. That path has
+been run (see [REPORT.md](REPORT.md)).
 
 ```mermaid
 flowchart TB
@@ -75,7 +81,7 @@ flowchart LR
   actor["gVisor actor\nateom-gvisor:v0.0.9"]
   rmcp["RemoteMCPServer"]
   mcp["arista-ceos-mcp\n:8084/mcp"]
-  fabric["cEOS eAPI\nspine1 / leaf1 / leaf2"]
+  fabric["cEOS eAPI<br/>spine1 / leaf1 / leaf2"]
   vault["Vault"]
   eso["ESO"]
 
@@ -88,7 +94,7 @@ Chat → kagent UI `:30500` → A2A sandboxes → gVisor actor →
 (lab AAA never in the actor). That MCP and `SandboxAgent` are **not**
 in this v1.
 
-## Addressing (planned fabric, not a live table)
+## Addressing (fabric; mgmt IPs from live inspect)
 
 | Node | ASN | Loopback | Link |
 |------|-----|----------|------|
@@ -96,12 +102,13 @@ in this v1.
 | leaf1 | 65101 | 10.255.0.11/32 | Ethernet1 `10.0.1.1/31` ↔ spine1 |
 | leaf2 | 65102 | 10.255.0.12/32 | Ethernet1 `10.0.2.1/31` ↔ spine1 |
 
-Planned management pool: **`172.20.20.0/24`** (`mgmt.ipv4-subnet` in
-the topology). Per-node Management0 IPs are **not** hardcoded.
-Scripts and a future MCP should use `docker inspect`, `containerlab
-inspect`, or Docker DNS names such as `clab-arista-ceos-spine1`.
-Vault (later) stores those discovered hosts in `hosts_json`, not a
-single `host` key.
+Management pool: **`172.20.20.0/24`** (`mgmt.ipv4-subnet` in the
+topology). Per-node Management0 IPs are **not** hardcoded. Live
+inspect this evening: spine1 `172.20.20.2`, leaf2 `172.20.20.3`,
+leaf1 `172.20.20.4`. Scripts and a future MCP should use `docker
+inspect`, `containerlab inspect`, or Docker DNS names such as
+`clab-arista-ceos-spine1`. Vault (later) stores those discovered
+hosts in `hosts_json`, not a single `host` key.
 
 ## Pins (do not bump the kagent pair)
 
@@ -111,10 +118,11 @@ single `host` key.
 | Agent Substrate Helm + CRDs | `0.0.9` (future agent; not applied here) |
 | Worker image | `ghcr.io/kagent-dev/substrate/ateom-gvisor:v0.0.9` |
 | Pattern (later) | Go Declarative `SandboxAgent` + FastMCP + `RemoteMCPServer` + ExternalSecret |
-| Containerlab kind | `arista_ceos` (binary **not** on Viper yet) |
-| Image (default) | `ceos:4.33.9M` via `docker import` — no Hub pull |
+| Containerlab | **0.78.2** (commit `8e6596157`) at `/usr/local/bin/containerlab`; kind `arista_ceos` |
+| Image (pin) | `ceos:4.33.9M` via `docker import` — no Hub pull |
 | Image arch | `linux/amd64` (Viper is amd64) |
-| Mgmt subnet (planned) | `172.20.20.0/24` — no hardcoded Ma0 |
+| Image digest (live) | `sha256:56fcaed9ef895428e760997eb59ebfca2df661c915f360ae2ba4284439c3bb4f` |
+| Mgmt subnet | `172.20.20.0/24` — no hardcoded Ma0 |
 | Underlay | eBGP IPv4, no MPLS |
 
 rc2 always writes `ActorTemplate` with `spec.pauseImage` and
@@ -126,14 +134,14 @@ this demo grows a `SandboxAgent`.
 
 ```text
 arista-ceos-sandbox-agent/
-  README.md                 # visual landing (this file) — shots pending
-  JOURNEY.md                # reproducible Containerlab setup
-  REPORT.md                 # NOT YET RUN template
+  README.md                 # visual landing (this file) — shots still empty
+  JOURNEY.md                # reproducible Containerlab setup + live inotify note
+  REPORT.md                 # LIVE 2026-08-17 Viper record
   .env.example              # image + lab-only AAA names (copy to .env)
   clab/                     # topology + startup-config templates
   scripts/                  # prereqs, deploy, verify, destroy
   skills/                   # intended read-only Arista operations
-  shots/                    # empty until a real live run
+  shots/                    # NOTES only until a real Chromium capture
 ```
 
 ## Docs
@@ -141,18 +149,17 @@ arista-ceos-sandbox-agent/
 | If you want… | Open |
 |--------------|------|
 | How to deploy on Viper | [JOURNEY.md](JOURNEY.md) |
-| Live numbers (none yet) | [REPORT.md](REPORT.md) |
+| Live numbers (2026-08-17) | [REPORT.md](REPORT.md) |
 | Intended agent skills | [skills/SKILL.md](skills/SKILL.md) |
 | What shots are allowed | [shots/NOTES.md](shots/NOTES.md) |
 
 ## Honest limits
 
-- **Build/deploy pending.** Containerlab is not on Viper yet. The lab
-  is not deployed. The agent is not live. Do not copy imagined
-  `show ip bgp summary` output.
+- The 3-node fabric is **live** on Viper. The kagent `SandboxAgent`
+  is **not** applied. Do not invent kagent chat output.
 - cEOS is Arista-licensed. This repo does not vendor the tarball.
   Scripts never `docker pull`. Missing `ceos:4.33.9M` is a hard fail
-  with an import hint.
+  with an import hint. This run did not pull `sebbycorp/ceosimage`.
 - Custom startup-config replaces Containerlab’s generated
   `admin`/`admin` user, so deploy **renders** AAA from `.env` (or the
   documented Containerlab default) into gitignored `clab/generated/`.
@@ -164,3 +171,5 @@ arista-ceos-sandbox-agent/
 - kagent UI `http://172.16.10.135:30500/` is **LAN-only** and is not
   part of this v1 deploy.
 - Never commit `.env`, Vault tokens, or eAPI password **values**.
+- First boot on this host died on inotify / Too many open files.
+  The sysctl fix is in [JOURNEY.md](JOURNEY.md).
